@@ -169,7 +169,7 @@ article#post section p {
 /* POST CONTAINER */
 
 main {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 40px auto;
     padding: 20px;
     background: #1F1F1F; 
@@ -188,8 +188,8 @@ main {
     text-align: left;
 }
 
-pre {
-    background-color: black;
+pre{
+    background-color: black; 
     border: 1px solid #ccc;
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
     padding: 0 10px; 
@@ -206,17 +206,26 @@ pre {
 
 code {
     white-space: inherit; 
+    font-family: 'Consolas', monospace; 
+    padding: 0px 4px; 
+    border-radius: 2px;
+    color: white; 
 }
 
 .inline-code {
     font-family: 'Consolas', monospace; 
     border: 1px solid black;
     padding: 0px 4px; 
-    background-color: #eaeaea;
+    background-color: #464545;
     border-radius: 2px;
-    color: grey;
+    color: #eaeaea;
 }
 
+.light-mode .inline-code {
+    background-color: #eaeaea; /* Different background color for inline code in light mode */
+    color: grey; /* Different text color for light mode */
+    border: 1px solid black;
+}
 
 .construct { color: rgb(240, 73, 7); }
 .string { color: rgb(62, 237, 62); }

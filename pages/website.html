@@ -10,8 +10,8 @@
     <header>
         <nav id="navbar">
             <ul>
-                <li><a href="../pages/home.html">home</a></li>
-                <li><a href="../pages/notes.html">notes</a></li>
+                <li><a href="../pages/home">home</a></li>
+                <li><a href="../pages/notes">notes</a></li>
                 <button class="social-button theme" id="theme-toggle"></button> 
             </ul>
         </nav>
@@ -313,18 +313,14 @@ document.querySelectorAll('a').forEach(link => {
                 var customInfo = doc.querySelector('.popup-info');
                 var infoText = customInfo ? customInfo.textContent : 
                 'No additional information available';
-                updatePreviewDiv('<strong>URL:</strong><br>' 
-                + url 
-                + '<br><br><strong>Tag:</strong><br>' 
-                + infoText, e.pageX, e.pageY);
+                updatePreviewDiv('<strong>URL:</strong><br>' + url 
+                + '<br><br><strong>Tag:</strong><br>' + infoText, e.pageX, e.pageY);
             }).catch(error => {
-                updatePreviewDiv('<strong>URL:</strong><br>' 
-                + url 
+                updatePreviewDiv('<strong>URL:</strong><br>' + url 
                 + '<br><br>Preview not available', e.pageX, e.pageY);
             });
         } else {
-            updatePreviewDiv('<strong>URL:</strong><br>' 
-            + url 
+            updatePreviewDiv('<strong>URL:</strong><br>' + url 
             + '<br><br>Preview not available for external links', e.pageX, e.pageY);
         }
     });
@@ -334,6 +330,27 @@ document.querySelectorAll('a').forEach(link => {
                     grab the page's HTML, and render it with my CSS. But, that would imply getting around 
                     CORS, and since this is being hosted on github pages, I can't run any server-side code. 
                     So for now, regrettably, no preview tags for external links.
+            </section>
+            <section>
+                <h2>4. redirects</h2>
+                <div id="markdown-content">
+                    One thing I absolutely did not like at all starting this site is how all my urls were 
+                    `base/page.html`. I wanted `base/page` for cleanliness. So, I added a `404.html` file 
+                    in the root directory, and attached a `redirect.js` script. It's very short and gets 
+                    the job done:
+                    ```javascript
+var url = window.location.href;
+var hasExtension = url.endsWith('.html') || url.endsWith('.htm');
+
+if (!hasExtension) {
+    var newUrl = url + '.html';
+    window.location.href = newUrl;
+}
+
+                    ```
+                    All I had to do afterwards was change all my navigation links to no longer have `.html` 
+                    suffixes.
+                </div>
             </section>
         </article>
     </main>
