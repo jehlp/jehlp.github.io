@@ -53,8 +53,9 @@ nav ul li a:hover, nav ul li#theme-toggle:hover {
     top: 20px;
     right: 20px;
     padding-right: 0px; 
-    background-image: url('../img/sun.jpg'); /* Moon image for dark theme */
-    background-color: #1F1F1F
+    background-image: url('../img/sun.jpg');
+    background-color: #1F1F1F;
+    z-index: 9999
 }
 
 section {
