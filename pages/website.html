@@ -107,7 +107,7 @@ function parseCodeBlocks(htmlElement) {
                     
                     Here, we parse the text sequentially. When we come across triple backticks that
                     are not escaped, open the code block, and make sure to treat special characters
-                    like '<' and '>' properly. LikeI omitted part of this for brevity; when inside a code block 
+                    like '<' and '>' properly. I omitted part of this for brevity; when inside a code block 
                     (that is, if `inCodeBlock` evaluates to true), convert &lt; and &gt; to &amp;lt; and &amp;gt;. 
                     This is to prevent HTML tags from being evaluated inside code blocks.
                     <br>
