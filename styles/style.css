@@ -263,7 +263,7 @@ footer p {
     color: black;
 }
 
-body {
+.light-mode body {
     background-color: #636565; 
     color: #CCCCCC;
 }
