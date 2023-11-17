@@ -12,7 +12,7 @@
             <ul>
                 <li><a href="../pages/home.html">home</a></li>
                 <li><a href="../pages/notes.html">notes</a></li>
-                <button class="social-button theme" id="theme-toggle"></button>                
+                <button class="social-button theme" id="theme-toggle"></button> 
             </ul>
         </nav>
     </header>
@@ -149,7 +149,8 @@ function parseCodeBlocksAndInline(htmlElement) {
                     this up tremendously by writing the regex... it easily saved me half an hour here. 
                     It was also tremendous help in generating comprehensive keyword lists which can 
                     be seen in the source code
-                    <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/markdown.js">here</a>. 
+                    <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/markdown.js">here</a>
+                    <div id="link-preview" style="display: none;"></div>. 
 
 ```javascript
 function colorCodeBlocksJS(codeBlock) {
@@ -227,7 +228,112 @@ function toggleTheme() {
     }
 }
                     ```
+                    Pretty straightforward, a much needed break from custom syntax highlighting.
                 </div>
+            </section>
+            <section>
+                <h2>3. popups</h2>
+                <div id = "markdown-content">
+                    This is something I've wanted to try implementing for a long time after seeing the 
+                    insanity of recursive popups like on <a href="https://gwern.net/">Gwern's website</a>. 
+                    First I just need to figure out how to query all &lt;a&gt; elements, and dynamically create 
+                    a &lt;div&gt; on mouse hover. Let's start a `popup.js` script:
+                    ```javascript
+function updatePopupStyle(popupDiv) {
+    if (document.documentElement.classList.contains('light-mode')) {
+        popupDiv.style.background = 'white';
+        // More light mode mode styles...
+    } else {
+        popupDiv.style.background = 'black';
+        // More dark mode mode styles...
+    }
+
+    popupDiv.style.padding = '10px';
+    popupDiv.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
+    // More generic styles...
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var previewDiv = document.createElement('div');
+    previewDiv.id = 'link-preview';
+    updatePopupStyle(previewDiv); 
+    document.body.appendChild(previewDiv);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        updatePopupStyle(previewDiv);
+    });
+
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('mouseover', function(e) {
+            var url = link.getAttribute('href');
+            updatePreviewDiv('<strong>URL:</strong><br>' + url, e.pageX, e.pageY)
+        });
+
+        link.addEventListener('mouseout', function() {
+            previewDiv.style.display = 'none';
+        });
+    });
+
+    function updatePreviewDiv(content, x, y) {
+        previewDiv.innerHTML = content;
+        previewDiv.style.display = 'block';
+        previewDiv.style.left = (x + 10) + 'px';
+        previewDiv.style.top = (y + 10) + 'px';
+    }
+});
+                    ```
+This dynamically creates a popup that displays the URL of the link I hover over, with
+different themes for light and dark mode. Now that we have the fundamental work done, we can now 
+attack something much more complex: rendering information from the source site in the popup.
+We need to use some sort of fetch request, so I can no longer test this website via localhost
+because I have no way to use CORS or similar.
+<br>
+<br>
+This is a tough problem, so let's first by rendering information client-side (that is, on
+other pages of this project). I'm now using `http-server` from node to host locally so 
+I can test fetch requests. I'm running it with `http-server -c-1` because of some bizarre
+browser caching issues, but this seemed to fix it. 
+<br>
+<br>
+I added a `popup-info` tag with no display to each page on this website,
+so that if we detect the link is not external, we can grab information for the popup. Here are the
+main updates I made under `querySelectorAll`:
+```javascript
+document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('mouseover', function(e) {
+        var url = new URL(link.getAttribute('href'), window.location.href).href;
+
+        if (url.startsWith(window.location.origin)) {
+            fetch(url).then(response => {
+                if (response.ok) return response.text();
+                else throw new Error('Network response was not ok.');
+            }).then(html => {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var customInfo = doc.querySelector('.popup-info');
+                var infoText = customInfo ? customInfo.textContent : 
+                'No additional information available';
+                updatePreviewDiv('<strong>URL:</strong><br>' 
+                + url 
+                + '<br><br><strong>Tag:</strong><br>' 
+                + infoText, e.pageX, e.pageY);
+            }).catch(error => {
+                updatePreviewDiv('<strong>URL:</strong><br>' 
+                + url 
+                + '<br><br>Preview not available', e.pageX, e.pageY);
+            });
+        } else {
+            updatePreviewDiv('<strong>URL:</strong><br>' 
+            + url 
+            + '<br><br>Preview not available for external links', e.pageX, e.pageY);
+        }
+    });
+});
+                    ```
+                    So, the natural next step is... what do we do about external links? My end goal is to
+                    grab the page's HTML, and render it with my CSS. But, that would imply getting around 
+                    CORS, and since this is being hosted on github pages, I can't run any server-side code. 
+                    So for now, regrettably, no preview tags for external links.
             </section>
         </article>
     </main>
@@ -235,7 +341,12 @@ function toggleTheme() {
     <script src="../scripts/control.js"></script>
     <script src="../scripts/markdown.js"></script>
     <script src="../scripts/theme.js"></script>
+    <script src="../scripts/popup.js"></script>
 </body>
+
+<div class="popup-info" style="display: none;">
+    A devlog about the development of this website.
+</div>
 
 <footer>
     <p>&copy; 2023 jw.</p>
