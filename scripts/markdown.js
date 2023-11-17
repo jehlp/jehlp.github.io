@@ -54,52 +54,96 @@ function colorCodeBlocks(htmlElement) {
 }
 
 function colorCodeBlocksJS(codeBlock) {
-    const js_keywords = [
-        'var', 
-        'let', 
-        'const', 
-        'function', 
-        'return', 
-        'if', 
-        'else', 
-        'replace', 
-        'substring', 
-        'continue',
-        'startsWith',
-        'RegExp',
-        'split',
-        'length',
-        'break',
-        'trim',
-        'for',
-        'join',
-        'switch',
-        'case',
-        'default',
-        'new'
+    const language_constructs = [
+        'var', 'let', 'const', 'function', 'return', 'if', 'else', 
+        'for', 'while', 'do', 'switch', 'case', 'default', 'break', 
+        'continue', 'try', 'catch', 'finally', 'throw', 'extends', 
+        'import', 'export', 'from', 'as', 'class', 'super', 'this', 
+        'new', 'delete', 'typeof', 'void', 'yield', 'await', 'async', 
+        'in', 'instanceof', 'with', 'debugger', 'static', 'get', 'set',
+        'of', 'public', 'private', 'protected', 'enum', 'implements',
+        'interface', 'package', 'protected', 'static'
+    ];
+
+    const built_in_functions = [
+        'alert', 'console.log', 'setTimeout', 'setInterval', 
+        'clearTimeout', 'clearInterval', 'prompt', 'confirm',
+        'parseInt', 'parseFloat', 'encodeURI', 'decodeURI', 
+        'encodeURIComponent', 'decodeURIComponent', 'eval', 
+        'split', 'substring', 'startsWith', 'join', 'replace',
+        'trim', 'toUpperCase', 'toLowerCase', 'charAt', 'charCodeAt',
+        'indexOf', 'lastIndexOf', 'match', 'search', 'slice',
+        'concat', 'push', 'pop', 'shift', 'unshift',
+        'splice', 'sort', 'reverse', 'reduce', 'reduceRight',
+        'map', 'filter', 'forEach', 'every', 'some',
+        'find', 'findIndex', 'includes', 'toLocaleUpperCase', 
+        'toLocaleLowerCase', 'repeat', 'substr', 'valueOf',
+        'toFixed', 'toExponential', 'toPrecision', 'getDate', 
+        'setDate', 'getDay', 'getFullYear', 'getHours', 
+        'getMilliseconds', 'getMinutes', 'getMonth', 'getSeconds', 
+        'getTime', 'getTimezoneOffset', 'getUTCDate', 'getUTCDay',
+        'getUTCFullYear', 'getUTCHours', 'getUTCMinutes', 
+        'getUTCMonth', 'getUTCSeconds', 'setFullYear', 
+        'setHours', 'setMilliseconds', 'setMinutes', 
+        'setMonth', 'setSeconds', 'setTime', 'setUTCDate', 
+        'setUTCFullYear', 'setUTCHours', 'setUTCMinutes', 
+        'setUTCMonth', 'setUTCSeconds', 'toDateString', 
+        'toISOString', 'toJSON', 'toLocaleDateString', 
+        'toLocaleString', 'toLocaleTimeString', 'toTimeString', 
+        'toUTCString', 'now', 'parse', 'UTC', 'isArray', 
+        'from', 'of', 'copyWithin', 'fill', 'entries', 
+        'keys', 'values', 'findLast', 'findLastIndex', 'length'
+    ];
+
+    const built_in_objects = [
+        'Array', 'Boolean', 'Date', 'Error', 'Function', 'JSON', 'Math', 
+        'Number', 'Object', 'RegExp', 'String', 'Promise', 'Map', 'Set', 
+        'WeakMap', 'WeakSet', 'Symbol', 'BigInt', 'Float32Array', 'Float64Array',
+        'Int8Array', 'Int16Array', 'Int32Array', 'Uint8Array', 'Uint8ClampedArray',
+        'Uint16Array', 'Uint32Array', 'ArrayBuffer', 'DataView', 'SharedArrayBuffer',
+        'Atomics', 'Reflect', 'Proxy', 'Generator', 'GeneratorFunction', 'AsyncFunction',
+        'WebAssembly'
+    ];
+
+    const dom_related = [
+        'document', 'window', 'Element', 'Node', 'innerHTML', 'textContent', 
+        'getElementById', 'getElementsByClassName', 'getElementsByTagName', 
+        'querySelector', 'querySelectorAll', 'addEventListener', 'removeEventListener',
+        'createEvent', 'dispatchEvent', 'NodeList', 'HTMLCollection', 'CanvasRenderingContext2D',
+        'WebGLRenderingContext', 'localStorage', 'sessionStorage', 'history', 'location',
+        'fetch', 'XMLHttpRequest', 'screen', 'navigator', 'URL', 'Blob', 'FileReader',
+        'FormData', 'AudioContext', 'MediaQueryList', 'WebSocket', 'Worker', 'ServiceWorker'
     ];
 
     let codeText = codeBlock.textContent; 
 
     codeText = codeText
-        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
         .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
 
     const segments = codeText.split(/(<span class="string">.*?<\/span>)/);
-    const segment_regex = new RegExp(`\\b(${js_keywords.join('|')})\\b`, 'g');
+
+    const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
+    const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
+    const object_regex = new RegExp(`\\b(${built_in_objects.join('|')})\\b`, 'g');
+    const dom_regex = new RegExp(`\\b(${dom_related.join('|')})\\b`, 'g');
+    const value_regex = /\b(true|false|null|undefined)\b/g;
+    const number_regex = /\d+/g;
 
     for (let i = 0; i < segments.length; i++) {
         if (!segments[i].startsWith('<span class="string">')) {
             segments[i] = segments[i]
-                .replace(segment_regex, '<span class="keyword">$1</span>');
+                .replace(construct_regex, '<span class="construct">$1</span>')
+                .replace(function_regex, '<span class="function">$1</span>')
+                .replace(object_regex, '<span class="object">$1</span>')
+                .replace(dom_regex, '<span class="dom">$1</span>')
+                .replace(value_regex, '<span class="value">$1</span>')
+                .replace(number_regex, '<span class="value">$&</span>');
         }
     }
 
     codeText = segments.join('');
-
-    codeText = codeText
-        .replace(/\b(true|false|null|undefined)\b/g, '<span class="constant">$1</span>')
-        .replace(/\d+/g, '<span class="constant">$&</span>');
 
     codeBlock.innerHTML = codeText;
 }

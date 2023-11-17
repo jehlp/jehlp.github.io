@@ -129,63 +129,65 @@ function parseCodeBlocks(htmlElement) {
                     this up tremendously by writing the regex... it easily saved me half an hour here.
                     ```javascript
 function colorCodeBlocksJS(codeBlock) {
-    const js_keywords = [
-        'var', 
-        'let', 
-        'const', 
-        'function', 
-        'return', 
-        'if', 
-        'else', 
-        'replace', 
-        'substring', 
-        'continue',
-        'startsWith',
-        'RegExp',
-        'split',
-        'length',
-        'break',
-        'trim',
-        'for',
-        'join',
-        'switch',
-        'case',
-        'default',
-        'new'
+    const language_constructs = [
+        'var', 'let', 'const', 'function', 'return', 'if', 'else', 
+        'for', 'while', ...
+    ];
+
+    const built_in_functions = [
+        'alert', 'console.log', 'setTimeout', 'setInterval', 
+        'clearTimeout', 'clearInterval', 'prompt', 'confirm',
+        'parseInt', 'parseFloat', ...
+    ];
+
+    const built_in_objects = [
+        'Array', 'Boolean', 'Date', 'Error', 'Function', 'JSON', 'Math', 
+        'Number', 'Object', ...
+    ];
+
+    const dom_related = [
+        'document', 'window', 'Element', 'Node', 'innerHTML', 'textContent', 
+        'getElementById', ...
     ];
 
     let codeText = codeBlock.textContent; 
 
     codeText = codeText
-        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
         .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
 
     const segments = codeText.split(/(<span class="string">.*?<\/span>)/);
-    const segment_regex = new RegExp(`\\b(${js_keywords.join('|')})\\b`, 'g');
+
+    const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
+    const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
+    const object_regex = new RegExp(`\\b(${built_in_objects.join('|')})\\b`, 'g');
+    const dom_regex = new RegExp(`\\b(${dom_related.join('|')})\\b`, 'g');
+    const value_regex = /\b(true|false|null|undefined)\b/g;
+    const number_regex = /\d+/g;
 
     for (let i = 0; i < segments.length; i++) {
         if (!segments[i].startsWith('<span class="string">')) {
             segments[i] = segments[i]
-                .replace(segment_regex, '<span class="keyword">$1</span>');
+                .replace(construct_regex, '<span class="construct">$1</span>')
+                .replace(function_regex, '<span class="function">$1</span>')
+                .replace(object_regex, '<span class="object">$1</span>')
+                .replace(dom_regex, '<span class="dom">$1</span>')
+                .replace(value_regex, '<span class="value">$1</span>')
+                .replace(number_regex, '<span class="value">$&</span>');
         }
     }
 
     codeText = segments.join('');
 
-    codeText = codeText
-        .replace(/\b(true|false|null|undefined)\b/g, '<span class="constant">$1</span>')
-        .replace(/\d+/g, '<span class="constant">$&</span>');
-
     codeBlock.innerHTML = codeText;
 }
                     ``` 
-                    Of course, this only colors keywords, constants, and strings, but it's
-                    better than nothing. It's also worth noting that the order we insert the 
-                    spans does matter; strings take precedence, as, for example, "function"
-                    (surrounded by quotes) should be colored as a string, not a keyword. I 
-                    didn't implement operators because the text is littered with HTML tags;
-                    parsing inequalities and equal signs is going to be a mess if I get
-                    around to it. 
+                    This honestly is pretty comprehensive JS coloring. It's also worth noting 
+                    that the order we insert the spans does matter; strings take precedence; 
+                    for example, "function"(surrounded by quotes) should be colored as a string, 
+                    not a keyword. Again, GPT-4 was tremendous help in generating comprehensive
+                    keyword lists.
                 </div>
             </section>
             <section>

@@ -202,11 +202,12 @@ code {
     white-space: inherit; 
 }
 
-.keyword { color: rgb(230, 80, 20); }
+.construct { color: rgb(230, 80, 20); }
 .string { color: rgb(62, 237, 62); }
 .value { color: rgb(11, 237, 218); }
-.operator { color: darkorange; }
-
+.object { color: darkorange; }
+.function { color: rgb(221, 99, 232); }
+.dom { color: rgb(98, 58, 227); }
 
 /* LINKS */
 
