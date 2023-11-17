@@ -2,15 +2,6 @@ function openUrl(url) {
     window.open(url, '_blank').focus();
 }
 
-function parseCodeBlocks(htmlElement) {
-    const text = htmlElement.innerHTML;
-    const replacedText = text.replace(/```([\s\S]*?)```/g, function(match, code) {
-        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return `<pre><code>${escapedCode}</code></pre>`;
-    });
-    htmlElement.innerHTML = replacedText;
-}
-
 const anilistBtn = document.getElementById('anilist-btn');
 if (anilistBtn) {
     anilistBtn.addEventListener('click', function() {
@@ -33,10 +24,4 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         });
     });
 });
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    const contentElement = document.getElementById('markdown-content');
-    parseCodeBlocks(contentElement);
-});
-
 
