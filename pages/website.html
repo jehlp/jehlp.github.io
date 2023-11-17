@@ -282,22 +282,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
                     ```
-This dynamically creates a popup that displays the URL of the link I hover over, with
-different themes for light and dark mode. Now that we have the fundamental work done, we can now 
-attack something much more complex: rendering information from the source site in the popup.
-We need to use some sort of fetch request, so I can no longer test this website via localhost
-because I have no way to use CORS or similar.
-<br>
-<br>
-This is a tough problem, so let's first by rendering information client-side (that is, on
-other pages of this project). I'm now using `http-server` from node to host locally so 
-I can test fetch requests. I'm running it with `http-server -c-1` because of some bizarre
-browser caching issues, but this seemed to fix it. 
-<br>
-<br>
-I added a `popup-info` tag with no display to each page on this website,
-so that if we detect the link is not external, we can grab information for the popup. Here are the
-main updates I made under `querySelectorAll`:
+                    This dynamically creates a popup that displays the URL of the link I hover over, with
+                    different themes for light and dark mode. Now that we have the fundamental work done, we can now 
+                    attack something much more complex: rendering information from the source site in the popup.
+                    We need to use some sort of fetch request, so I can no longer test this website via localhost
+                    because I have no way to use CORS or similar.
+                    <br>
+                    <br>
+                    I'm now using `http-server` from node to host locally so I can test fetch requests. 
+                    I'm running it with `http-server -c-1` because of some bizarre browser caching issues, 
+                    but this seemed to fix it. 
+                    <br>
+                    <br>
+                    Rendering content from other web pages in real time is a tough problem, so let's start 
+                    by first only fetching information client-side (that is, on other pages of this project).
+                    I added a `popup-info` tag with no display to each page on this website,
+                    so that if we detect the link is not external, we can grab information for the popup. Here are the
+                    main updates I made under `querySelectorAll`:
 ```javascript
 document.querySelectorAll('a').forEach(link => {
     link.addEventListener('mouseover', function(e) {
