@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>making a website</title>
+    <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+    <header>
+        <nav id="navbar">
+            <ul>
+                <li><a href="../pages/index.html">home</a></li>
+                <li><a href="../pages/notes.html">notes</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <article id="post">
+            <header>
+                <h1>making a website</h1>
+                <p class="meta">Posted on <time datetime="2023-11-16">November 16, 2023</time></p>
+                <p class="meta">Last updated on <time datetime="2023-11-16">November 16, 2023</time></p>
+            </header>
+            <section>
+                <p> This will be a growing dev-log and possibly a real-time display of mental collapse 
+                    as i work on this website.</p>
+            </section>
+            <section>
+                <div id="markdown-content">
+                    The first thing I want to implement is some sort of special HTML element that
+                    can render code blocks or other markdown formatting. There is a script that does this
+                    for us <a href="https://cdn.jsdelivr.net/npm/marked/marked.min.js">here</a>, but I 
+                    thought it might be a fun challenge to implement this myself. Obviously, implementing
+                    markdown from scratch is not an easy task, so lets start with code blocks
+                    enclosed in triple backticks.
+
+                    Here's the start of my 'markdown.js' solution.
+                    ```
+function parseCodeBlocks(htmlElement) {
+    const text = htmlElement.innerHTML;
+
+    const replacedText = text.replace(/\```([\s\S]*?)\```/g, function(match, code) {
+        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre><code>${escapedCode}</code></pre>`;
+    });
+
+    htmlElement.innerHTML = replacedText;
+}
+                    ```
+
+                    I quickly realized this didn't work when I went to render this page, because the 
+                    triple backticks inside the code block were treated as the end of the code block.
+                    So, I needed to add the ability to escape backticks. While hacky, this gets the
+                    job done:
+                
+                    ```
+function parseCodeBlocks(htmlElement) {
+    const text = htmlElement.innerHTML;
+
+    const escapedText = text.replace(/\\\```/g, 'ESCAPED_BACKTICKS');
+
+    const replacedText = escapedText.replace(/\```([\s\S]*?)\```/g, function(match, code) {
+        const unescapedCode = code.replace(/ESCAPED_BACKTICKS/g, '\```');
+        const escapedCode = unescapedCode.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre><code>${escapedCode}</code></pre>`;
+    });
+
+    htmlElement.innerHTML = replacedText.replace(/ESCAPED_BACKTICKS/g, '\```');
+}
+                    ```
+                    I'm using a simple regular expression to find all instances of '\\```', replacing
+                    them with the phrase ESCAPED_BACKTICKS, rendering the HTML, then replacing 
+                    ESCAPED_BACKTICKS back with '\\```' at the end. The only problem now is that
+                    whenever I write 'ESCAPED_BACKTICKS', it gets replaced by triple backticks!
+                    So, we need a way to make sure that originally written 'ESCAPED_BACKTICKS' will
+                    be left alone. This was wayyy trickier than I anticipated:
+                    ```
+function parseCodeBlocks(htmlElement) {
+    let text = htmlElement.innerHTML;
+    let result = '';
+    let inCodeBlock = false;
+    let i = 0;
+
+    while (i < text.length) {
+        if (text.substring(i, i + 4) === '\\\```') {
+            result += '\```'; 
+            i += 4; 
+            continue;
+        }
+
+        if (text.substring(i, i + 3) === '\```') {
+            inCodeBlock = !inCodeBlock;
+            result += inCodeBlock ? '<pre><code>' : '</code></pre>';
+            i += 3;
+            continue;
+        }
+
+        if (inCodeBlock) {
+            if (text[i] === '<') {
+                result += '&amp;lt;';
+            } else if (text[i] === '>') {
+                result += '&amp;gt;';
+            } else {
+                result += text[i];
+            }
+        } else {
+            result += text[i];
+        }
+
+        i++;
+    }
+
+    htmlElement.innerHTML = result;
+}
+                    ```
+                    Here, we parse the text sequentially. When we come across triple backticks that
+                    are not escaped, open the code block, and make sure to treat special characters
+                    like '<' and '>' properly.                    
+                </div>
+            </section>
+        </article>
+    </main>
+    
+    <script src="../scripts/markdown.js"></script>
+</body>
+
+<footer>
+    <p>&copy; 2023 jw.</p>
+</footer>
+
+</html>
