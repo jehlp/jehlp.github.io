@@ -20,25 +20,38 @@ header {
 
 /* NAVBAR */
 
+nav {
+    position: relative;
+}
+
 nav ul {
     list-style: none;
     padding: 0;
+    margin: 0;
     display: flex;
     justify-content: center;
 }
 
 nav ul li {
     margin: 0 15px;
+    position: relative; 
 }
 
-nav ul li a {
+nav ul li a, nav ul li#theme-toggle {
     color: #61dafb;
     text-decoration: none;
     font-size: 1.1em;
+    cursor: pointer; 
 }
 
-nav ul li a:hover {
+nav ul li a:hover, nav ul li#theme-toggle:hover {
     color: #FFFFFF; 
+}
+
+#theme-toggle {
+    position: absolute;
+    right: 0;
+    padding-right: 20px; 
 }
 
 section {
@@ -104,8 +117,6 @@ section {
     }
 }
 
-/* LIST OF POSTS */
-
 #notes-list ul {
     list-style: inside; 
     padding-left: 0;   
@@ -119,6 +130,7 @@ section {
 #notes-list ul li a {
     color: #CCCCCC;
     text-decoration: none;
+    font-size: 1.3em;
 }
 
 /* POSTS */
@@ -190,10 +202,11 @@ code {
     white-space: inherit; 
 }
 
-.keyword {
-    color: #f47154; 
-    font-weight: bold; 
-}
+.keyword { color: rgb(230, 80, 20); }
+.string { color: rgb(62, 237, 62); }
+.value { color: rgb(11, 237, 218); }
+.operator { color: darkorange; }
+
 
 /* LINKS */
 
@@ -223,4 +236,62 @@ footer {
 footer p {
     margin: 0;
     font-size: 0.9em;
+}
+
+/* LIGHT MODE */
+
+.light-mode {
+    background-color: #e0e0e0;
+    color: black;
+}
+
+.light-mode header {
+    background-color: #6e6565; 
+    color: black;
+}
+
+.light-mode section {
+    background-color: #e0e0e0; 
+    color: black;
+}
+
+.light-mode nav ul li a, .light-mode nav ul li#theme-toggle {
+    color: #333;
+}
+
+.light-mode nav ul li a:hover, .light-mode nav ul li#theme-toggle:hover {
+    color: #000;
+}
+
+.light-mode footer {
+    background-color: #e0e0e0;
+    color: #333;
+    border-top: 1px solid #ccc;
+}
+
+.light-mode pre {
+    color: white;
+}
+
+.light-mode #notes-list ul li a {
+    color: black;
+    text-decoration: none;
+    font-size: 1.3em;
+}
+
+.light-mode article#post section h2 {
+    font-size: 1.5em;
+    color: black; 
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.light-mode article#post section p {
+    line-height: 1.6;
+    color: black;
+    margin-bottom: 1em;
+}
+
+.light-mode a {
+    color: black;
 }

@@ -12,6 +12,7 @@
             <ul>
                 <li><a href="../pages/home.html">home</a></li>
                 <li><a href="../pages/notes.html">notes</a></li>
+                <li id="theme-toggle">Light Mode</li>
             </ul>
         </nav>
     </header>
@@ -28,6 +29,7 @@
                     as i work on this website.</p>
             </section>
             <section>
+                <h2>1. markdown</h2>
                 <div id="markdown-content">
                     The first thing I want to implement is some sort of special HTML element that
                     can render code blocks or other markdown formatting. There is a script that does this
@@ -37,7 +39,7 @@
                     enclosed in triple backticks.
 
                     Here's the start of my 'markdown.js' solution.
-                    ```
+                    ```javascript
 function parseCodeBlocks(htmlElement) {
     const text = htmlElement.innerHTML;
 
@@ -55,7 +57,7 @@ function parseCodeBlocks(htmlElement) {
                     So, I needed to add the ability to escape backticks. While hacky, this gets the
                     job done:
                 
-                    ```
+                    ```javascript
 function parseCodeBlocks(htmlElement) {
     const text = htmlElement.innerHTML;
 
@@ -76,7 +78,7 @@ function parseCodeBlocks(htmlElement) {
                     whenever I write 'ESCAPED_BACKTICKS', it gets replaced by triple backticks!
                     So, we need a way to make sure that originally written 'ESCAPED_BACKTICKS' will
                     be left alone. This was wayyy trickier than I anticipated:
-                    ```
+                    ```javascript
 function parseCodeBlocks(htmlElement) {
     let text = htmlElement.innerHTML;
     let result = '';
@@ -117,13 +119,115 @@ function parseCodeBlocks(htmlElement) {
                     ```
                     Here, we parse the text sequentially. When we come across triple backticks that
                     are not escaped, open the code block, and make sure to treat special characters
-                    like '<' and '>' properly.                    
+                    like '<' and '>' properly. A final thing that I want to do for this is add some
+                    basic syntax coloring. Of course, we can use the widely used highlight.js 
+                    <a href="https://highlightjs.org/">here</a>, but that's no fun.
+                    <br>
+                    <br>
+                    At an extremely basic level, this honestly wasn't too bad to do, especially 
+                    since we know that all code blocks are going to be in a code tag. GPT-4 sped 
+                    this up tremendously by writing the regex... it easily saved me half an hour here.
+                    ```javascript
+function colorCodeBlocksJS(codeBlock) {
+    const js_keywords = [
+        'var', 
+        'let', 
+        'const', 
+        'function', 
+        'return', 
+        'if', 
+        'else', 
+        'replace', 
+        'substring', 
+        'continue',
+        'startsWith',
+        'RegExp',
+        'split',
+        'length',
+        'break',
+        'trim',
+        'for',
+        'join',
+        'switch',
+        'case',
+        'default',
+        'new'
+    ];
+
+    let codeText = codeBlock.textContent; 
+
+    codeText = codeText
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
+
+    const segments = codeText.split(/(<span class="string">.*?<\/span>)/);
+    const segment_regex = new RegExp(`\\b(${js_keywords.join('|')})\\b`, 'g');
+
+    for (let i = 0; i < segments.length; i++) {
+        if (!segments[i].startsWith('<span class="string">')) {
+            segments[i] = segments[i]
+                .replace(segment_regex, '<span class="keyword">$1</span>');
+        }
+    }
+
+    codeText = segments.join('');
+
+    codeText = codeText
+        .replace(/\b(true|false|null|undefined)\b/g, '<span class="constant">$1</span>')
+        .replace(/\d+/g, '<span class="constant">$&</span>');
+
+    codeBlock.innerHTML = codeText;
+}
+                    ``` 
+                    Of course, this only colors keywords, constants, and strings, but it's
+                    better than nothing. It's also worth noting that the order we insert the 
+                    spans does matter; strings take precedence, as, for example, "function"
+                    (surrounded by quotes) should be colored as a string, not a keyword. I 
+                    didn't implement operators because the text is littered with HTML tags;
+                    parsing inequalities and equal signs is going to be a mess if I get
+                    around to it. 
+                </div>
+            </section>
+            <section>
+                <h2>2. dark/light mode</h2>
+                <div id="markdown-content">
+                    I'm usually a dark-mode kind of guy, but I don't think I'm particularly
+                    consistent on what color schemas I use on what sites and so on. But here,
+                    I've made the tyrannical executive decision to make dark the default. So 
+                    naturally I'll probably end up doing more styling for it, and leave light
+                    mode a little lagging behind. That being said, this is something that needs
+                    to be implemented. 
+                    <br>
+                    <br>
+                    I'm admittedly terrible at styling, so for now I've decided I dont want to 
+                    bother with making a button (and pick out .svgs for sun and moon 
+                    icons...) so light and dark mode will be a toggle in the navbar. 
+
+                    ```javascript
+function toggleTheme() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('light-mode');
+            const theme = document.documentElement.classList
+                .contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+            themeToggle.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+        });
+    }
+}
+                    ```
+                    Unfortunately, even though I <i>thought</i> I was only loading the theme after
+                    all the DOM elements are loaded, I guess something else is going wrong because 
+                    often I notice a FOUC (Flash Of Unstyled Content). Another item on the todo list, it seems... 
                 </div>
             </section>
         </article>
     </main>
     
+    <script src="../scripts/control.js"></script>
     <script src="../scripts/markdown.js"></script>
+    <script src="../scripts/theme.js"></script>
 </body>
 
 <footer>
