@@ -55,7 +55,7 @@ nav ul li a:hover, nav ul li#theme-toggle:hover {
     padding-right: 0px; 
     background-image: url('../img/sun.jpg');
     background-color: #1F1F1F;
-    z-index: 9999
+    z-index: 9999;
 }
 
 section {
