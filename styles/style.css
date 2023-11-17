@@ -119,6 +119,32 @@ section {
     main {
         padding: 10px;
     }
+
+    .social-button {
+        width: 25px;
+        height: 25px;
+    }
+
+    pre {
+        background-color: #1e1e1e; 
+        padding: 10px; 
+        font-size: 14px; 
+        overflow-x: auto; 
+        border-radius: 5px; 
+        margin: 10px 5px; 
+    }
+
+    code {
+        font-size: 14px; 
+    }
+
+    .code-block-container {
+        padding-top: 20px; 
+    }
+
+    .code-toggle, .code-close {
+        padding: 8px; 
+    }
 }
 
 #notes-list ul {
@@ -202,6 +228,11 @@ pre{
     white-space: pre-wrap;
     position: relative;
     left: 1;
+    display: none;
+}
+
+.show-code pre {
+    display: block;
 }
 
 code {
@@ -210,6 +241,50 @@ code {
     padding: 0px 4px; 
     border-radius: 2px;
     color: white; 
+}
+
+.code-block-container {
+    margin: 20px 0;
+    position: relative;
+    padding-top: 30px; 
+}
+
+.code-toggle, .code-close {
+    background: none;
+    background-color: black;
+    border: 1px solid #ccc;
+    border-radius: 5px; 
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.code-toggle::after {
+    content: '→'; 
+}
+
+.show-code .code-toggle::after {
+    content: '↓';
+}
+
+.code-close::before,
+.code-close::after {
+    content: none !important; 
+}
+
+.code-close {
+    background: transparent;
+    display: none; 
+    border: none
+}
+
+.show-code .code-close {
+    display: block; 
 }
 
 .inline-code {
@@ -222,8 +297,8 @@ code {
 }
 
 .light-mode .inline-code {
-    background-color: #eaeaea; /* Different background color for inline code in light mode */
-    color: grey; /* Different text color for light mode */
+    background-color: #eaeaea; 
+    color: grey; 
     border: 1px solid black;
 }
 
@@ -322,4 +397,8 @@ footer p {
 
 .light-mode #theme-toggle {
     background-image: url('../img/moon.jpg');
+}
+
+.light-mode .code-toggle, .light-mode .code-close {
+    color: white;
 }

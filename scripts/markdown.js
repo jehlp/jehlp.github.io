@@ -20,7 +20,11 @@ function parseCodeBlocksAndInline(htmlElement) {
 
         if (text.substring(i, i + 3) === '```') {
             inCodeBlock = !inCodeBlock;
-            result += inCodeBlock ? '<pre><code>' : '</code></pre>';
+            if (inCodeBlock) {
+                result += '<div class="code-block-container"><button class="code-toggle"></button><button class="code-close"></button><pre><code>';
+            } else {
+                result += '</code></pre></div>';
+            }
             i += 3;
             continue;
         }
@@ -185,5 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
     contentElements.forEach((contentElement) => {
         parseCodeBlocksAndInline(contentElement);
         colorCodeBlocks(contentElement);
+
+        contentElement.querySelectorAll('.code-block-container').forEach(container => {
+            const toggleButton = container.querySelector('.code-toggle');
+            const closeButton = container.querySelector('.code-close');
+
+            toggleButton.addEventListener('click', () => {
+                container.classList.toggle('show-code');
+            });
+
+            closeButton.addEventListener('click', () => {
+                container.classList.remove('show-code');
+            });
+        });
     });
 });

@@ -353,6 +353,43 @@ if (!hasExtension) {
                     suffixes.
                 </div>
             </section>
+            <section>
+                <h2>5. code block UX</h2>
+                <div id="markdown-content">
+                    Automatically rendering code-blocks is nice, but we should add some additional UX.
+                    First of all, they should all be hidden by default, and the user can click a drop
+                    down arrow or 'expand' button to see the code block. I'm doing this by editing
+                    `markdown.js` to create a container at the start of every code block like so:
+                    ```javascript
+if (text.substring(i, i + 3) === '\```') {
+    inCodeBlock = !inCodeBlock;
+    if (inCodeBlock) {
+        result += '<div class="code-block-container"><button class="code-toggle"></button><button class="code-close"></button><pre><code>';
+    } else {
+        result += '</code></pre></div>';
+    }
+    i += 3;
+    continue;
+}
+                    ```
+                    Then, all I did was modify the event listener to toggle the button between 'open' and 'close' 
+                    on click.
+                    <br>
+                    <br>
+                    The buttons seem to work! LLMs are incredible for helping me style so quickly; I ran into 
+                    a bizarre styling error where an empty close-code button was appearing in unexpected places, 
+                    and I sure as hell wouldn't have debugged it quickly.    
+                </div>   
+            </section>
+            <section>
+                <h2>6. mobile</h2>
+                <div id="markdown-content">
+                    Any good website has mobile compatibility, therefore this is not a good website. For starters,
+                    I decreased the size of the light/dark mode buttons on mobile by adjusting `width` and `height`
+                    under the CSS `@media` rule. I did similar for code-blocks by decreasing their padding and 
+                    font size to make them less of a pain to read.
+                </div>   
+            </section>
         </article>
     </main>
     
