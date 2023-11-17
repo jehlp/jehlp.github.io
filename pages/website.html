@@ -99,17 +99,7 @@ function parseCodeBlocks(htmlElement) {
             continue;
         }
 
-        if (inCodeBlock) {
-            if (text[i] === '<') {
-                result += '&amp;lt;';
-            } else if (text[i] === '>') {
-                result += '&amp;gt;';
-            } else {
-                result += text[i];
-            }
-        } else {
-            result += text[i];
-        }
+        result += text[i]
 
         i++;
     }
@@ -117,64 +107,50 @@ function parseCodeBlocks(htmlElement) {
     htmlElement.innerHTML = result;
 }
                     ```
+                    
                     Here, we parse the text sequentially. When we come across triple backticks that
                     are not escaped, open the code block, and make sure to treat special characters
-                    like '<' and '>' properly. A final thing that I want to do for this is add some
+                    like '<' and '>' properly. LikeI omitted part of this for brevity; when inside a code block 
+                    (that is, if inCodeBlock evaluates to true), convert &lt; and &gt; to &amp;lt; and &amp;gt;. 
+                    This is to prevent HTML tags from being evaluated inside code blocks.
+                    <br>
+                    <br>
+                    A final thing that I want to do for this is add some
                     basic syntax coloring. Of course, we can use the widely used highlight.js 
                     <a href="https://highlightjs.org/">here</a>, but that's no fun.
                     <br>
                     <br>
                     At an extremely basic level, this honestly wasn't too bad to do, especially 
                     since we know that all code blocks are going to be in a code tag. GPT-4 sped 
-                    this up tremendously by writing the regex... it easily saved me half an hour here.
-                    ```javascript
+                    this up tremendously by writing the regex... it easily saved me half an hour here. 
+                    It was also tremendous help in generating comprehensive keyword lists which can 
+                    be seen in the source code 
+                    <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/markdown.js">here</a>. 
+
+```javascript
 function colorCodeBlocksJS(codeBlock) {
-    const language_constructs = [
-        'var', 'let', 'const', 'function', 'return', 'if', 'else', 
-        'for', 'while', ...
-    ];
-
-    const built_in_functions = [
-        'alert', 'console.log', 'setTimeout', 'setInterval', 
-        'clearTimeout', 'clearInterval', 'prompt', 'confirm',
-        'parseInt', 'parseFloat', ...
-    ];
-
-    const built_in_objects = [
-        'Array', 'Boolean', 'Date', 'Error', 'Function', 'JSON', 'Math', 
-        'Number', 'Object', ...
-    ];
-
-    const dom_related = [
-        'document', 'window', 'Element', 'Node', 'innerHTML', 'textContent', 
-        'getElementById', ...
-    ];
-
-    let codeText = codeBlock.textContent; 
+    let codeText = codeBlock.textContent;
 
     codeText = codeText
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
         .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
 
     const segments = codeText.split(/(<span class="string">.*?<\/span>)/);
-
-    const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
-    const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
-    const object_regex = new RegExp(`\\b(${built_in_objects.join('|')})\\b`, 'g');
-    const dom_regex = new RegExp(`\\b(${dom_related.join('|')})\\b`, 'g');
+        
     const value_regex = /\b(true|false|null|undefined)\b/g;
     const number_regex = /\d+/g;
-
+    const single_line_comment_regex = /(?:^|\s)\/\/.*/g;
+    const multi_line_comment_regex = /\/\*[\s\S]*?\*\//g;
+    const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
+    const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
+    // Other regex here...
+    
     for (let i = 0; i < segments.length; i++) {
         if (!segments[i].startsWith('<span class="string">')) {
             segments[i] = segments[i]
                 .replace(construct_regex, '<span class="construct">$1</span>')
                 .replace(function_regex, '<span class="function">$1</span>')
-                .replace(object_regex, '<span class="object">$1</span>')
-                .replace(dom_regex, '<span class="dom">$1</span>')
-                .replace(value_regex, '<span class="value">$1</span>')
-                .replace(number_regex, '<span class="value">$&</span>');
+                .replace(dom_function_regex, '<span class="function">$1</span>')
+                // Other regex here...
         }
     }
 
@@ -183,11 +159,11 @@ function colorCodeBlocksJS(codeBlock) {
     codeBlock.innerHTML = codeText;
 }
                     ``` 
-                    This honestly is pretty comprehensive JS coloring. It's also worth noting 
-                    that the order we insert the spans does matter; strings take precedence; 
-                    for example, "function"(surrounded by quotes) should be colored as a string, 
-                    not a keyword. Again, GPT-4 was tremendous help in generating comprehensive
-                    keyword lists.
+                    Like above, I omitted small parts of the pre-processing code, such as properly handling 
+                    &lt; and &gt; signs and language selection, but this snippet is honestly enough 
+                    for extremely comprehensive syntax highlighting. It's also worth noting that the order 
+                    we insert the spans does matter; strings take precedence; for example, "function" 
+                    (surrounded by quotes) should be colored as a string, not a built-in. 
                 </div>
             </section>
             <section>

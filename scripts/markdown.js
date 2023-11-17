@@ -90,9 +90,9 @@ function colorCodeBlocksJS(codeBlock) {
         'setUTCMonth', 'setUTCSeconds', 'toDateString', 
         'toISOString', 'toJSON', 'toLocaleDateString', 
         'toLocaleString', 'toLocaleTimeString', 'toTimeString', 
-        'toUTCString', 'now', 'parse', 'UTC', 'isArray', 
+        'toUTCString', 'now', 'parse', 'UTC', 'isArray',
         'from', 'of', 'copyWithin', 'fill', 'entries', 
-        'keys', 'values', 'findLast', 'findLastIndex', 'length'
+        'keys', 'values', 'findLast', 'findLastIndex',
     ];
 
     const built_in_objects = [
@@ -105,41 +105,59 @@ function colorCodeBlocksJS(codeBlock) {
         'WebAssembly'
     ];
 
-    const dom_related = [
-        'document', 'window', 'Element', 'Node', 'innerHTML', 'textContent', 
+    const dom_properties = [
+        'document', 'window', 'documentElement', 'innerHTML', 'textContent', 
+        'style', 'children', 'firstChild', 'lastChild', 'nextSibling', 
+        'previousSibling', 'parentNode', 'offsetParent', 'offsetTop', 'offsetLeft', 
+        'offsetWidth', 'offsetHeight', 'clientTop', 'clientLeft', 'clientWidth', 
+        'clientHeight', 'innerWidth', 'innerHeight', 'outerWidth', 'outerHeight', 
+        'pageXOffset', 'pageYOffset', 'screenX', 'screenY', 'screenLeft', 'screenTop',
+        'classList', 'nodeName', 'nodeType', 'nodeValue', 'id', 'className'
+    ];    
+
+    const dom_functions = [
         'getElementById', 'getElementsByClassName', 'getElementsByTagName', 
         'querySelector', 'querySelectorAll', 'addEventListener', 'removeEventListener',
-        'createEvent', 'dispatchEvent', 'NodeList', 'HTMLCollection', 'CanvasRenderingContext2D',
-        'WebGLRenderingContext', 'localStorage', 'sessionStorage', 'history', 'location',
-        'fetch', 'XMLHttpRequest', 'screen', 'navigator', 'URL', 'Blob', 'FileReader',
-        'FormData', 'AudioContext', 'MediaQueryList', 'WebSocket', 'Worker', 'ServiceWorker'
+        'appendChild', 'removeChild', 'createTextNode', 'createElement', 
+        'getAttribute', 'setAttribute', 'removeAttribute', 'getComputedStyle',
+        'scroll', 'scrollTo', 'scrollBy', 'scrollIntoView', 'focus', 'blur', 'submit',
+        'add', 'remove', 'toggle', 'contains'
     ];
 
     let codeText = codeBlock.textContent; 
 
     codeText = codeText
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
+        .replace(/>/g, '&gt;');
+
+    codeText = codeText.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
 
     const segments = codeText.split(/(<span class="string">.*?<\/span>)/);
 
     const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
     const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
+    const dom_function_regex = new RegExp(`\\b(${dom_functions.join('|')})\\b`, 'g');
     const object_regex = new RegExp(`\\b(${built_in_objects.join('|')})\\b`, 'g');
-    const dom_regex = new RegExp(`\\b(${dom_related.join('|')})\\b`, 'g');
+    const dom_property_regex = new RegExp(`\\b(${dom_properties.join('|')})\\b`, 'g');
+
     const value_regex = /\b(true|false|null|undefined)\b/g;
     const number_regex = /\d+/g;
+
+    const single_line_comment_regex = /(?:^|\s)\/\/.*/g;
+    const multi_line_comment_regex = /\/\*[\s\S]*?\*\//g;
 
     for (let i = 0; i < segments.length; i++) {
         if (!segments[i].startsWith('<span class="string">')) {
             segments[i] = segments[i]
                 .replace(construct_regex, '<span class="construct">$1</span>')
                 .replace(function_regex, '<span class="function">$1</span>')
+                .replace(dom_function_regex, '<span class="function">$1</span>')
                 .replace(object_regex, '<span class="object">$1</span>')
-                .replace(dom_regex, '<span class="dom">$1</span>')
+                .replace(dom_property_regex, '<span class="property">$1</span>')
                 .replace(value_regex, '<span class="value">$1</span>')
-                .replace(number_regex, '<span class="value">$&</span>');
+                .replace(number_regex, '<span class="value">$&</span>')
+                .replace(single_line_comment_regex, '<span class="comment">$&</span>') 
+                .replace(multi_line_comment_regex, '<span class="comment">$&</span>'); 
         }
     }
 
