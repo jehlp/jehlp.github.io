@@ -49,9 +49,12 @@ nav ul li a:hover, nav ul li#theme-toggle:hover {
 }
 
 #theme-toggle {
-    position: absolute;
-    right: 0;
-    padding-right: 20px; 
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding-right: 0px; 
+    background-image: url('../img/sun.jpg'); /* Moon image for dark theme */
+    background-color: #1F1F1F
 }
 
 section {
@@ -139,12 +142,14 @@ article#post header h1 {
     font-size: 2.5em;
     color: #61dafb; 
     margin-bottom: 0.5em;
+    margin-left: 0.5em
 }
 
 article#post .meta {
     font-style: italic;
     color: #CCCCCC; 
     margin-bottom: 2em;
+    margin-left: 2em
 }
 
 article#post section h2 {
@@ -202,6 +207,16 @@ code {
     white-space: inherit; 
 }
 
+.inline-code {
+    font-family: 'Consolas', monospace; 
+    border: 1px solid black;
+    padding: 0px 4px; 
+    background-color: #eaeaea;
+    border-radius: 2px;
+    color: grey;
+}
+
+
 .construct { color: rgb(230, 80, 20); }
 .string { color: rgb(62, 237, 62); }
 .value { color: rgb(11, 237, 218); }
@@ -248,22 +263,19 @@ footer p {
     color: black;
 }
 
+body {
+    background-color: #636565; 
+    color: #CCCCCC;
+}
+
 .light-mode header {
-    background-color: #6e6565; 
+    background-color: #7d5353; 
     color: black;
 }
 
 .light-mode section {
     background-color: #e0e0e0; 
     color: black;
-}
-
-.light-mode nav ul li a, .light-mode nav ul li#theme-toggle {
-    color: #333;
-}
-
-.light-mode nav ul li a:hover, .light-mode nav ul li#theme-toggle:hover {
-    color: #000;
 }
 
 .light-mode footer {
@@ -297,4 +309,8 @@ footer p {
 
 .light-mode a {
     color: black;
+}
+
+.light-mode #theme-toggle {
+    background-image: url('../img/moon.jpg');
 }

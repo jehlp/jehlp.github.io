@@ -1,13 +1,20 @@
-function parseCodeBlocks(htmlElement) {
+function parseCodeBlocksAndInline(htmlElement) {
     let text = htmlElement.innerHTML;
     let result = '';
     let inCodeBlock = false;
+    let inInlineCode = false;
     let i = 0;
 
     while (i < text.length) {
         if (text.substring(i, i + 4) === '\\```') {
             result += '```'; 
-            i += 4; 
+            i += 4;
+            continue;
+        }
+
+        if (!inCodeBlock && text.substring(i, i + 2) === '\\`') {
+            result += '`'; 
+            i += 2;
             continue;
         }
 
@@ -17,8 +24,15 @@ function parseCodeBlocks(htmlElement) {
             i += 3;
             continue;
         }
-            
-        if (inCodeBlock) {
+
+        if (!inCodeBlock && text[i] === '`') {
+            inInlineCode = !inInlineCode;
+            result += inInlineCode ? '<code class="inline-code">' : '</code>';
+            i++;
+            continue;
+        }
+
+        if (inCodeBlock || inInlineCode) {
             if (text[i] === '<') {
                 result += '&lt;';
             } else if (text[i] === '>') {
@@ -169,7 +183,7 @@ function colorCodeBlocksJS(codeBlock) {
 document.addEventListener('DOMContentLoaded', () => {
     const contentElements = document.querySelectorAll('#markdown-content');
     contentElements.forEach((contentElement) => {
-        parseCodeBlocks(contentElement);
+        parseCodeBlocksAndInline(contentElement);
         colorCodeBlocks(contentElement);
     });
 });

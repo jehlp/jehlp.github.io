@@ -8,13 +8,7 @@
 </head>
 <body>
     <header>
-        <nav id="navbar">
-            <ul>
-                <li><a href="../pages/home.html">home</a></li>
-                <li><a href="../pages/notes.html">notes</a></li>
-                <li id="theme-toggle">Light Mode</li>
-            </ul>
-        </nav>
+        <div id="navbar-placeholder"></div>
     </header>
     
     <main>
@@ -22,7 +16,7 @@
             <header>
                 <h1>making a website</h1>
                 <p class="meta">Posted on <time datetime="2023-11-16">November 16, 2023</time></p>
-                <p class="meta">Last updated on <time datetime="2023-11-16">November 16, 2023</time></p>
+                <p class="meta">Last updated on <time datetime="2023-11-16">November 17, 2023</time></p>
             </header>
             <section>
                 <p> This will be a growing dev-log and possibly a real-time display of mental collapse 
@@ -72,9 +66,9 @@ function parseCodeBlocks(htmlElement) {
     htmlElement.innerHTML = replacedText.replace(/ESCAPED_BACKTICKS/g, '\```');
 }
                     ```
-                    I'm using a simple regular expression to find all instances of '\\```', replacing
-                    them with the phrase ESCAPED_BACKTICKS, rendering the HTML, then replacing 
-                    ESCAPED_BACKTICKS back with '\\```' at the end. The only problem now is that
+                    I'm using a simple regular expression to find all instances of '\`\`\`', replacing
+                    them with `ESCAPED_BACKTICKS`, rendering the HTML, then replacing 
+                    `ESCAPED_BACKTICKS` back with '\`\`\`' at the end. The only problem now is that
                     whenever I write 'ESCAPED_BACKTICKS', it gets replaced by triple backticks!
                     So, we need a way to make sure that originally written 'ESCAPED_BACKTICKS' will
                     be left alone. This was wayyy trickier than I anticipated:
@@ -86,21 +80,18 @@ function parseCodeBlocks(htmlElement) {
     let i = 0;
 
     while (i < text.length) {
-        if (text.substring(i, i + 4) === '\\\```') {
+        if (text.substring(i, i + 4) === '\\```') {
             result += '\```'; 
             i += 4; 
             continue;
         }
-
         if (text.substring(i, i + 3) === '\```') {
             inCodeBlock = !inCodeBlock;
             result += inCodeBlock ? '<pre><code>' : '</code></pre>';
             i += 3;
             continue;
         }
-
         result += text[i]
-
         i++;
     }
 
@@ -111,10 +102,37 @@ function parseCodeBlocks(htmlElement) {
                     Here, we parse the text sequentially. When we come across triple backticks that
                     are not escaped, open the code block, and make sure to treat special characters
                     like '<' and '>' properly. LikeI omitted part of this for brevity; when inside a code block 
-                    (that is, if inCodeBlock evaluates to true), convert &lt; and &gt; to &amp;lt; and &amp;gt;. 
+                    (that is, if `inCodeBlock` evaluates to true), convert &lt; and &gt; to &amp;lt; and &amp;gt;. 
                     This is to prevent HTML tags from being evaluated inside code blocks.
                     <br>
                     <br>
+                    This made me think: this should be very easy to extend to in-line code as well, and it was!
+                    Just a couple new cases to check, and a special inline styling class for our CSS:
+                    ```javascript
+function parseCodeBlocksAndInline(htmlElement) {
+    // Existing variables...
+
+    let inInlineCode = false;
+
+    while (i < text.length) {
+        // Existing cases...
+
+        if (!inCodeBlock && text.substring(i, i + 2) === '\\`') {
+            result += '`'; 
+            i += 2;
+            continue;
+        }
+        if (!inCodeBlock && text[i] === '`') {
+            inInlineCode = !inInlineCode;
+            result += inInlineCode ? '<code class="inline-code">' : '</code>';
+            i++;
+            continue;
+        }
+    }
+
+    // Unchanged...
+}
+                    ```
                     A final thing that I want to do for this is add some
                     basic syntax coloring. Of course, we can use the widely used highlight.js 
                     <a href="https://highlightjs.org/">here</a>, but that's no fun.
@@ -124,7 +142,7 @@ function parseCodeBlocks(htmlElement) {
                     since we know that all code blocks are going to be in a code tag. GPT-4 sped 
                     this up tremendously by writing the regex... it easily saved me half an hour here. 
                     It was also tremendous help in generating comprehensive keyword lists which can 
-                    be seen in the source code 
+                    be seen in the source code
                     <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/markdown.js">here</a>. 
 
 ```javascript
@@ -140,8 +158,8 @@ function colorCodeBlocksJS(codeBlock) {
     const number_regex = /\d+/g;
     const single_line_comment_regex = /(?:^|\s)\/\/.*/g;
     const multi_line_comment_regex = /\/\*[\s\S]*?\*\//g;
-    const construct_regex = new RegExp(`\\b(${language_constructs.join('|')})\\b`, 'g');
-    const function_regex = new RegExp(`\\b(${built_in_functions.join('|')})\\b`, 'g');
+    const construct_regex = new RegExp(`\\b(${constructs.join('|')})\\b`, 'g');
+    const function_regex = new RegExp(`\\b(${builtins.join('|')})\\b`, 'g');
     // Other regex here...
     
     for (let i = 0; i < segments.length; i++) {
@@ -155,7 +173,6 @@ function colorCodeBlocksJS(codeBlock) {
     }
 
     codeText = segments.join('');
-
     codeBlock.innerHTML = codeText;
 }
                     ``` 
@@ -163,7 +180,9 @@ function colorCodeBlocksJS(codeBlock) {
                     &lt; and &gt; signs and language selection, but this snippet is honestly enough 
                     for extremely comprehensive syntax highlighting. It's also worth noting that the order 
                     we insert the spans does matter; strings take precedence; for example, "function" 
-                    (surrounded by quotes) should be colored as a string, not a built-in. 
+                    (surrounded by quotes) should be colored as a string, not a built-in. The only 
+                    glaring issue is that keywords still get colored inside comments,
+                    but that is for another time.
                 </div>
             </section>
             <section>
@@ -177,27 +196,31 @@ function colorCodeBlocksJS(codeBlock) {
                     to be implemented. 
                     <br>
                     <br>
-                    I'm admittedly terrible at styling, so for now I've decided I dont want to 
-                    bother with making a button (and pick out .svgs for sun and moon 
-                    icons...) so light and dark mode will be a toggle in the navbar. 
+                    For now, I picked out two images I found online for buttons, and wrote a small 
+                    `theme.js` script to change the CSS and swap between the images as needed.
 
                     ```javascript
+function applyTheme() {
+    const theme = localStorage.getItem('theme') || 'dark';
+    if (theme === 'light') {
+        document.documentElement.classList.add('light-mode');
+    } else {
+        document.documentElement.classList.remove('light-mode');
+    }
+}
+
 function toggleTheme() {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
             document.documentElement.classList.toggle('light-mode');
             const theme = document.documentElement.classList
                 .contains('light-mode') ? 'light' : 'dark';
             localStorage.setItem('theme', theme);
-            themeToggle.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
         });
     }
 }
                     ```
-                    Unfortunately, even though I <i>thought</i> I was only loading the theme after
-                    all the DOM elements are loaded, I guess something else is going wrong because 
-                    often I notice a FOUC (Flash Of Unstyled Content). Another item on the todo list, it seems... 
                 </div>
             </section>
         </article>
@@ -206,10 +229,9 @@ function toggleTheme() {
     <script src="../scripts/control.js"></script>
     <script src="../scripts/markdown.js"></script>
     <script src="../scripts/theme.js"></script>
+    <script src="../scripts/load_elements.js"></script>
 </body>
 
-<footer>
-    <p>&copy; 2023 jw.</p>
-</footer>
+<div id="footer-placeholder"></div>
 
 </html>
