@@ -214,7 +214,7 @@ main {
     text-align: left;
 }
 
-pre{
+pre {
     background-color: black; 
     border: 1px solid #ccc;
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
@@ -265,11 +265,11 @@ code {
 }
 
 .code-toggle::after {
-    content: '→'; 
+    content: 'Expand'; 
 }
 
 .show-code .code-toggle::after {
-    content: '↓';
+    content: 'Close';
 }
 
 .code-close::before,
@@ -354,7 +354,7 @@ footer p {
 }
 
 .light-mode header {
-    background-color: #7d5353; 
+    background-color: #b4aa9e53; 
     color: black;
 }
 
