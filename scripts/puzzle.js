@@ -207,11 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let myPuzzle = myGenre[Math.floor(Math.random() * myGenre.length)];
     let isSolved = false;
 
-    let isDragging = false;
-    let initialDragState = null; 
-    let processedCellsDuringDrag = new Set();
-    let dragStartButton = null; 
-
     switch (myGenre) {
         case NURIKABE:
             rules.textContent = 'Nurikabe: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. Moreover, every unshaded area contains exactly one number, and that number indicates the size of the unshaded area it belongs to.'
@@ -350,25 +345,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             cell.addEventListener('click', handleCellClick);
             cell.addEventListener('contextmenu', handleCellRightClick);
-            cell.addEventListener('mousedown', handleMouseDown);
-            cell.addEventListener('mouseover', handleMouseOver);
-            cell.addEventListener('mouseup', handleMouseUp);
         }
     
         return cell;
-    }
-    
-    function handleCellClick() {
-        if (isSolved) return;
-        toggleCellState(this);
-        validatePuzzle();
-    }
-
-    function handleCellRightClick(event) {
-        event.preventDefault();
-        if (isSolved) return;
-        toggleCellState(this, true);
-        validatePuzzle();
     }
 
     function toggleCellState(cell, isRightClick = false) {
@@ -393,47 +372,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function handleMouseDown(event) {
-        event.preventDefault();
-        isDragging = true;
-        initialDragState = getCellState(this); 
-        dragStartButton = event.button; 
-        processedCellsDuringDrag.clear();
-        if (event.button === 0) { 
-            toggleCellState(this, false);
-        } else if (event.button === 2) { 
-            toggleCellState(this, true);
-        }
-    }
-    
-    function handleMouseOver() {
-        if (isDragging && !processedCellsDuringDrag.has(this) && getCellState(this) === initialDragState) {
-            if (dragStartButton === 0) { 
-                toggleCellState(this, false);
-            } else if (dragStartButton === 2) { 
-                toggleCellState(this, true);
-            }
-            processedCellsDuringDrag.add(this);
-        }
-    }
-    
-    function handleMouseUp() {
-        isDragging = false;
-        initialDragState = null;
-        dragStartButton = null;
-        processedCellsDuringDrag.clear();
+    function handleCellClick() {
+        if (isSolved) return;
+        toggleCellState(this);
         validatePuzzle();
     }
     
-    function getCellState(cell) {
-        if (cell.classList.contains('shaded')) {
-            return 'shaded';
-        } else if (cell.classList.contains('unshaded-cell')) {
-            return 'unshaded';
-        } else {
-            return 'empty';
-        }
-    }  
+    function handleCellRightClick(event) {
+        event.preventDefault();
+        if (isSolved) return;
+        toggleCellState(this, true);
+        validatePuzzle();
+    }
     
     function validatePuzzle() {
         const currentState = getCurrentGridState();
