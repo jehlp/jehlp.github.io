@@ -391,6 +391,149 @@ if (text.substring(i, i + 3) === '\```') {
                     font size to make them less of a pain to read.
                 </div>   
             </section>
+            <section>
+                <h2>7. puzzle</h2>
+                <div id="markdown-content">
+                    I've always like puzzles. Like <i>really</i> liked them; over the past two years in particular,
+                    logic puzzlecreation and solving has very likely been the hobby I have sunk the most time into. So,
+                    I thought for the first interactive page on my website, I'll make a random puzzle appear on page load.
+                    Of course they wont be randomly generated, they will be selected at random from a set of pre-defined 
+                    puzzles. I grabbed the ones you see on this website from <a href="https://puzz.link/db/">puzz.link database</a>.
+                    <br>
+                    <br>
+                    For starters, I'm going to work on shading puzzles; that is, puzzles where you have a grid and every cell 
+                    must be either shaded or unshaded. Two popular shading genres I like are <a href="https://www.gmpuzzles.com/blog/cave-rules-and-info/">cave</a>
+                    and <a href="https://www.gmpuzzles.com/blog/nurikabe-rules-and-info/">nurikabe</a>, so those will be the first
+                    rulesets I implement.
+                    <br>
+                    <br>
+                    For a shading puzzle, programatically, every cell has one of four states, not two. the states are:
+                    <ul>
+                        <li>Shaded</li>
+                        <li>Unshaded</li>
+                        <li>Clue cell</li>
+                        <li>Empty (this is different from unshaded. 'Empty' is the default state of a cell, while
+                            unshaded is when the user decides to mark it as unshaded.
+                        </li>
+                    </ul>
+                    We create a `puzzle.js` script and start out with three functions: `createGrid`, `createCell`, and 
+                    `getCurrentGridState`. The names should be pretty self explanatory, and all cell types are treated 
+                    as their own class for unique CSS styling.
+                    ```javascript
+function createGrid(puzzle) {
+    const rows = puzzle.length;
+    const cols = puzzle[0].length;
+
+    setGridStyle(rows, cols);
+    grid.innerHTML = '';
+
+    for (let i = 0; i < rows; i++) {
+        const row = document.createElement('div');
+        row.classList.add('grid-row');
+
+        for (let j = 0; j < cols; j++) {
+            const cell = createCell(puzzle[i][j]);
+            row.appendChild(cell);
+        }
+
+        grid.appendChild(row);
+    }
+} 
+
+function createCell(value) {
+    const cell = document.createElement('div');
+    cell.classList.add('grid-cell');
+
+    if (value !== 0) {
+        cell.textContent = value;
+        cell.classList.add('number-cell');
+    } else {
+        cell.addEventListener('click', handleCellClick);
+        cell.addEventListener('contextmenu', handleCellRightClick);
+    }
+
+    return cell;
+}
+
+function getCurrentGridState() {
+    const state = [];
+    for (const row of grid.children) {
+        const rowState = [];
+        for (const cell of row.children) {
+            if (cell.classList.contains('number-cell')) {
+                const number = parseInt(cell.textContent, 10);
+                rowState.push(number);
+            } else if (cell.classList.contains('shaded')) {
+                rowState.push('shaded');
+            } else if (cell.classList.contains('unshaded-cell')) {
+                rowState.push('unshaded');
+            } else {
+                rowState.push('empty');
+            }
+        }
+        state.push(rowState);
+    }
+    return state;
+}
+                    ```
+                    The `handleCellClick` and `handleCellRightClick` listeners cycle the cells between the states
+                    either forward or backwards, and showing the implementation doesn't add anything to this post.
+                    However, whenever there is a click on the grid, we run a `validatePuzzle` function that determines
+                    which validation function to use depending on the genre of the puzzle. That is, if the puzzle is 
+                    a cave puzzle, then we run `validateCave`, if it's nurikabe, we run `validateNurikabe`. If a 
+                    validator returns `true`, then we disable all handlers as the puzzle has been solved and should no
+                    longer be touched.
+                    <br>
+                    <br>
+                    The interesting part of this project is obviously the validators. Solutions to Nurikabe and Cave puzzles 
+                    both have <i>connectivity</i> requirements, which means cells of a certain type (shaded or unshaded) have 
+                    to be connected in some way. For cave, all unshaded cells must be connected, and all shaded cells must connect
+                    to an edge. For Nurikabe, all shaded cells are connected and all unshaded cells connect to form islands. 
+                    So we need to write something modular to account for types of connectivity deductions, or at least if not
+                    modular, we should understand how it works.
+                    <br>
+                    <br>
+                    Connectivity is solved most cleanly by a DFS algorithm. We start from a cell and recurse through cells 
+                    adjacent. We also update a 2x2 array of boolean values to make sure we never recurse over the same cell
+                    twice, which would effectively infinitely recurse and blow up our memory usage.
+                    ```javascript 
+function dfs(row, col, visited, grid, cellType) {
+    if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length 
+        || visited[row][col] 
+        || (cellType === 'unshaded' && !(grid[row][col] === 'unshaded' 
+        || !isNaN(grid[row][col]))) 
+        || (cellType === 'shaded' && grid[row][col] !== 'shaded')) {
+        return 0;
+    }
+
+    visited[row][col] = true;
+    let count = 1;
+
+    const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    for (const [dx, dy] of offsets) {
+        count += dfs(row + dx, col + dy, visited, grid, cellType);
+    }
+
+    return count;
+}
+                    ```
+                    This is a quick dfs solution for our grid for connectivity of either shaded or unshaded cells. 
+                    It assumes that all clue cells are unshaded, which admittedly is true for mostly all shading genres,
+                    but for a more generalized solution it isn't the best. But if it works, it works, right? There are a 
+                    lot of other random shading puzzle requirements and tools I needed to write, but most are very 
+                    straightforward and not worth delving into here. An interested reader can find the full source 
+                    code <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/puzzle.js">here</a>.
+                    <br>
+                    <br>
+                    Now that we have our random puzzle up and working, In the future I want to think about improving
+                    the UX a little bit. Cells can be left or right clicked, but only one at a time. For speed solvers, 
+                    allowing for a drag would be super useful to save clicks. However, during a drag (that is, during a 
+                    single `mousedown`, `mouseover`, `mouseup` sequence), only one cell type should be updated. This 
+                    might sound weird on paper, but if you have a grid with shaded and unshaded cells all scattered around, 
+                    on one action, you probably don't want to cycle shaded cells to unshaded cell and unshadeds to empty 
+                    cells in the same action. I haven't yet implemented this, but it's something to think about.
+                </div>
+            </section>
         </article>
     </main>
     

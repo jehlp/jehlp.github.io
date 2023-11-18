@@ -82,7 +82,9 @@ function getTotalShadedCells(currentState) {
 }
 
 function dfsIslands(row, col, visited, grid) {
-    if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length || visited[row][col] || grid[row][col] === 'shaded') {
+    if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length 
+        || visited[row][col] 
+        || grid[row][col] === 'shaded') {
         return { count: 0, numbers: 0, firstNumber: null };
     }
 
