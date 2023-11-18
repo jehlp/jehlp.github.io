@@ -426,7 +426,7 @@ if (text.substring(i, i + 3) === '\```') {
 function setGridStyle(rows, cols) {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const maxSize = Math.min(screenWidth, screenHeight) * 0.75; 
+    const maxSize = Math.min(screenWidth, screenHeight) * 0.6; 
     const gridDimension = Math.min(rows, cols);
     const W = Math.floor(maxSize / gridDimension); 
     
@@ -442,7 +442,7 @@ function setGridStyle(rows, cols) {
 }
                     ``` 
                     This function compares the available width and height and sets the maximum size to three
-                    fourths of whichever is smaller. Then our width and height of each cell is this size divided
+                    fifths of whichever is smaller. Then our width and height of each cell is this size divided
                     by whichever is smaller of total rows and columns. This worked extremely well.
                 </div>   
             </section>

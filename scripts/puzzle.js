@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function setGridStyle(rows, cols) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        const maxSize = Math.min(screenWidth, screenHeight) * 0.75; 
+        const maxSize = Math.min(screenWidth, screenHeight) * 0.5; 
         const gridDimension = Math.min(rows, cols);
         const W = Math.floor(maxSize / gridDimension); 
         
