@@ -53,12 +53,37 @@ const NURIKABE = [
 
 const CAVE = [
     [
-        [0,  0,  0,  0,  0,  0], 
-        [0,  6,  0,  6,  0,  0],
-        [0,  0,  0,  0,  0,  0], 
-        [0,  2,  0,  0,  0,  0], 
-        [0,  0,  0,  0,  0,  0], 
-        [0,  0,  0,  3,  0,  0]
+        [0,  0,  3,  0,  0,  0,  0], 
+        [0,  2,  0,  0,  0,  0,  3],
+        [0,  0,  4,  0,  0,  0,  0], 
+        [0,  0,  0,  0,  5,  5,  0], 
+        [0,  0,  6,  0,  5,  5,  0], 
+        [0,  3,  0,  0,  0,  0,  0],
+        [0,  0,  0,  0,  0,  7,  0]
+    ],
+    [
+        [0,  6,  0,  0,  0,  0,  0,  0,  5,  0],
+        [3,  0,  4,  0,  0,  0,  3,  0,  0,  0],
+        [0,  3,  0,  0,  0,  0,  0,  0,  0,  5],
+        [0,  0,  0,  2,  0,  0,  0,  0,  0,  0],
+        [0,  0,  3,  0,  0,  0,  0,  0,  0,  4],
+        [3,  0,  0,  0,  0,  0,  0,  3,  0,  0],
+        [0,  0,  0,  0,  0,  0,  4,  0,  0,  0],
+        [5,  0,  0,  0,  0,  0,  0,  0,  3,  0],
+        [0,  0,  0,  4,  0,  0,  0,  4,  0,  5],
+        [0,  3,  0,  0,  0,  0,  0,  0,  4,  0],
+    ],
+    [
+        [7,  0,  2,  0,  0,  0,  0,  0,  3,  0],
+        [0,  0,  0,  0,  0,  0,  5,  0,  0,  0],
+        [0,  0,  0,  6,  0,  0,  0,  0,  0,  0],
+        [0,  4,  0,  0,  0,  5,  0,  0,  0,  0],
+        [0,  0,  0,  5,  0,  0,  0,  4,  0,  5],
+        [0,  0,  3,  0,  0,  0,  0,  0,  0,  0],
+        [0,  0,  0,  0,  5,  0,  0,  3,  0,  0],
+        [0,  4,  0,  0,  0,  0,  0,  0,  0,  0],
+        [0,  0,  0,  0,  0,  3,  0,  0,  0,  0],
+        [3,  0,  0,  0,  0,  0,  3,  0,  0,  0]
     ]
 ]
 
@@ -182,6 +207,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let myGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
     let myPuzzle = myGenre[Math.floor(Math.random() * myGenre.length)];
     let isSolved = false;
+    let isDragging = false;
+    let processedCellsDuringDrag = new Set();
 
     switch (myGenre) {
         case NURIKABE:
@@ -321,6 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             cell.addEventListener('click', handleCellClick);
             cell.addEventListener('contextmenu', handleCellRightClick);
+            cell.addEventListener('mousedown', handleMouseDown);
+            cell.addEventListener('mouseover', handleMouseOver);
+            cell.addEventListener('mouseup', handleMouseUp);
         }
     
         return cell;
@@ -328,34 +358,59 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleCellClick() {
         if (isSolved) return;
-    
-        if (this.classList.contains('shaded')) {
-            this.classList.remove('shaded');
-            this.classList.add('unshaded-cell');
-        } else if (this.classList.contains('unshaded-cell')) {
-            this.classList.remove('unshaded-cell');
-        } else {
-            this.classList.add('shaded');
-        }
-    
+        toggleCellState(this);
         validatePuzzle();
     }
 
     function handleCellRightClick(event) {
         event.preventDefault();
         if (isSolved) return;
-    
-        if (this.classList.contains('unshaded-cell')) {
-            this.classList.remove('unshaded-cell');
-            this.classList.add('shaded');
-        } else if (this.classList.contains('shaded')) {
-            this.classList.remove('shaded');
-        } else {
-            this.classList.add('unshaded-cell');
-        }
-    
+        toggleCellState(this, true);
         validatePuzzle();
     }
+
+    function toggleCellState(cell, isRightClick = false) {
+        if (isRightClick) {
+            // Reverse order for right-click
+            if (cell.classList.contains('unshaded-cell')) {
+                cell.classList.remove('unshaded-cell');
+                cell.classList.add('shaded');
+            } else if (cell.classList.contains('shaded')) {
+                cell.classList.remove('shaded');
+            } else {
+                cell.classList.add('unshaded-cell');
+            }
+        } else {
+            // Forward order for left-click
+            if (cell.classList.contains('shaded')) {
+                cell.classList.remove('shaded');
+                cell.classList.add('unshaded-cell');
+            } else if (cell.classList.contains('unshaded-cell')) {
+                cell.classList.remove('unshaded-cell');
+            } else {
+                cell.classList.add('shaded');
+            }
+        }
+    }
+
+    function handleMouseDown(event) {
+        event.preventDefault();
+        isDragging = true;
+        processedCellsDuringDrag.clear();
+    }
+    
+    function handleMouseOver() {
+        if (isDragging && !processedCellsDuringDrag.has(this)) {
+            toggleCellState(this);
+            processedCellsDuringDrag.add(this); 
+        }
+    }
+    
+    function handleMouseUp() {
+        isDragging = false;
+        processedCellsDuringDrag.clear(); 
+        validatePuzzle();
+    }  
     
     function validatePuzzle() {
         const currentState = getCurrentGridState();
@@ -384,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
             grid.appendChild(row);
         }
-    }
+    }    
     
     createGrid(myPuzzle);
 });
