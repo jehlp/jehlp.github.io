@@ -406,7 +406,7 @@ footer p {
 
 #puzzle-grid {
     display: grid;
-    gap: 2px;
+    gap: 1px;
     margin: 0 auto;
     padding: 10px;
     border: 3px solid #666;
