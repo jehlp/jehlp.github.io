@@ -233,8 +233,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setGridStyle(rows, cols) {
-        grid.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
-        grid.style.gridTemplateRows = `repeat(${rows}, 50px)`;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const maxSize = Math.min(screenWidth, screenHeight) * 0.75; 
+        const gridDimension = Math.min(rows, cols);
+        const W = Math.floor(maxSize / gridDimension); 
+        
+        grid.style.gridTemplateColumns = `repeat(${cols}, ${W}px)`;
+        grid.style.gridTemplateRows = `repeat(${rows}, ${W}px)`;
+        
+        const cells = grid.querySelectorAll('.grid-cell');
+        cells.forEach(cell => {
+            cell.style.width = `${W}px`;
+            cell.style.height = `${W}px`;
+            cell.style.fontSize = `${W / 2.5}px`;
+        });
     }
 
     function getCurrentGridState() {
@@ -321,7 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = puzzle.length;
         const cols = puzzle[0].length;
     
-        setGridStyle(rows, cols);
         grid.innerHTML = '';
     
         for (let i = 0; i < rows; i++) {
@@ -335,9 +347,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
             grid.appendChild(row);
         }
+        setGridStyle(rows, cols);
     }    
     
     createGrid(myPuzzle);
 
     grid.addEventListener('contextmenu', event => event.preventDefault());
+
+    window.addEventListener('resize', () => {
+        const rows = myPuzzle.length;
+        const cols = myPuzzle[0].length;
+        setGridStyle(rows, cols);
+    });
 });

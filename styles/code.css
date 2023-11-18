@@ -93,3 +93,11 @@ code {
     color: grey; 
     border: 1px solid black;
 }
+
+.construct { color: rgb(240, 73, 7); }
+.string { color: rgb(62, 237, 62); }
+.value { color: rgb(11, 237, 218); }
+.object { color: darkorange; }
+.function { color: rgb(217, 154, 222); }
+.property { color: rgb(126, 90, 248); }
+.comment { color: rgb(145, 143, 155); }

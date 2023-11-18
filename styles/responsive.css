@@ -1,4 +1,8 @@
 @media (max-width: 768px) {
+    body {
+        font-size: 10px
+    }
+    
     nav ul li {
         margin: 0 10px;
     }
@@ -23,10 +27,6 @@
         overflow-x: auto; 
         border-radius: 5px; 
         margin: 10px 5px; 
-    }
-
-    code {
-        font-size: 14px; 
     }
 
     .code-block-container {

@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var anchorId = url.split('#')[1];
                     var section = document.getElementById(anchorId);
                     var infoText = section.getAttribute('data-popup-info') || 'No additional information available';
-                    updatePreviewDiv('<strong>Content:</strong><br>' + infoText, e.pageX, e.pageY);
+                    updatePreviewDiv(infoText, e.pageX, e.pageY);
                 } else {
                     fetch(url).then(response => {
                         if (response.ok) return response.text();
