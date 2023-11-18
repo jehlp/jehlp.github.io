@@ -49,11 +49,11 @@ function parseMarkdownText(htmlElement) {
             }
         } else {
             if (text.substring(i, i + 1) === '\\' && (
-               text.substring(i + 1, i + 3) === '**' 
-            || text.substring(i + 1, i + 3) === '__' 
-            || text.substring(i + 1, i + 3) === '~~'
-            || text[i + 1] === '*' 
-            || text[i + 1] === '_')) {
+                  text.substring(i + 1, i + 3) === '**' 
+               || text.substring(i + 1, i + 3) === '__' 
+               || text.substring(i + 1, i + 3) === '~~'
+               || text[i + 1] === '*' 
+               || text[i + 1] === '_')) {
                 result += text[i + 1]; 
                 i += 2; 
                 continue;
