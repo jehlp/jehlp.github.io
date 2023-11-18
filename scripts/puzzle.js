@@ -196,12 +196,20 @@ function dfsIslands(row, col, visited, grid) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const grid = document.getElementById('puzzle-grid');
+
     const rules = document.createElement('div');
+    rules.id = 'rules';
+    rules.style.margin = '0 auto';
+    rules.style.marginBottom = '20px';
+    rules.style.maxWidth = '40%';
+    rules.style.textAlign = 'center'; 
+    rules.style.fontStyle = 'italic'; 
+    grid.parentNode.insertBefore(rules, grid)
+
     const successMessage = document.createElement('div'); 
     successMessage.id = 'success-message'; 
-    rules.id = 'rules'
     grid.parentNode.insertBefore(successMessage, grid.nextSibling); 
-    grid.parentNode.insertBefore(rules, grid)
+
 
     let myGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
     let myPuzzle = myGenre[Math.floor(Math.random() * myGenre.length)];
