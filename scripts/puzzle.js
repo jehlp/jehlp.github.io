@@ -207,8 +207,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let myGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
     let myPuzzle = myGenre[Math.floor(Math.random() * myGenre.length)];
     let isSolved = false;
+
     let isDragging = false;
+    let initialDragState = null; 
     let processedCellsDuringDrag = new Set();
+    let dragStartButton = null; 
 
     switch (myGenre) {
         case NURIKABE:
@@ -394,20 +397,43 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleMouseDown(event) {
         event.preventDefault();
         isDragging = true;
+        initialDragState = getCellState(this); 
+        dragStartButton = event.button; 
         processedCellsDuringDrag.clear();
+        if (event.button === 0) { 
+            toggleCellState(this, false);
+        } else if (event.button === 2) { 
+            toggleCellState(this, true);
+        }
     }
     
     function handleMouseOver() {
-        if (isDragging && !processedCellsDuringDrag.has(this)) {
-            toggleCellState(this);
-            processedCellsDuringDrag.add(this); 
+        if (isDragging && !processedCellsDuringDrag.has(this) && getCellState(this) === initialDragState) {
+            if (dragStartButton === 0) { 
+                toggleCellState(this, false);
+            } else if (dragStartButton === 2) { 
+                toggleCellState(this, true);
+            }
+            processedCellsDuringDrag.add(this);
         }
     }
     
     function handleMouseUp() {
         isDragging = false;
-        processedCellsDuringDrag.clear(); 
+        initialDragState = null;
+        dragStartButton = null;
+        processedCellsDuringDrag.clear();
         validatePuzzle();
+    }
+    
+    function getCellState(cell) {
+        if (cell.classList.contains('shaded')) {
+            return 'shaded';
+        } else if (cell.classList.contains('unshaded-cell')) {
+            return 'unshaded';
+        } else {
+            return 'empty';
+        }
     }  
     
     function validatePuzzle() {
@@ -440,4 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }    
     
     createGrid(myPuzzle);
+
+    grid.addEventListener('contextmenu', event => event.preventDefault());
 });
