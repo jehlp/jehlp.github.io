@@ -139,10 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
             visited[row][col] = true;
             let count = 1; 
     
-            count += dfs(row + 1, col, visited, grid);
-            count += dfs(row - 1, col, visited, grid);
-            count += dfs(row, col + 1, visited, grid);
-            count += dfs(row, col - 1, visited, grid);
+            const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+            for (const [dx, dy] of offsets) {
+                count += dfs(row + dx, col + dy, visited, grid)
+            }
     
             return count;
         }
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
             successMessage.textContent = 'Solved!';
             isSolved = true;
         }
-        return shadedCellsCount === connectedShadedCellsCount;
+        return isSolved;
     }
     
     function createGrid(puzzle) {
