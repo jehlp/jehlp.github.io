@@ -29,6 +29,10 @@
         margin: 10px 5px; 
     }
 
+    code {
+        font-size: 7px;
+    }
+
     .code-block-container {
         padding-top: 20px; 
     }
