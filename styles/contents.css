@@ -1,11 +1,18 @@
+.content-section {
+    text-align: left; 
+    padding-left: 20px;
+    display: flex
+}
+
 .table-of-contents {
-    border: 1px solid white; /* Light blue border for dark mode */
-    margin-left: 0; /* Align to the left side */
-    padding: 10px; /* Padding inside the contents box */
-    display: inline-block; /* Allows the block to size according to content */
-    width: auto; /* Adjust width to fit the content */
-    background-color: transparent; /* Ensures the background matches the section it's in */
+    border: 1px solid white; 
+    margin-left: 0;
+    padding: 10px; 
+    display: inline-block; 
+    width: auto; 
+    background-color: transparent; 
     text-align: left;
+    flex: 1
 }
 
 .table-of-contents ul {
@@ -23,6 +30,12 @@
     text-decoration: none;
 }
 
+.qt {
+    flex: 3;
+    text-align: center;
+    padding: 30px
+}
+
 .light-mode .table-of-contents li a {
     color: #333;
 }
@@ -32,7 +45,3 @@
     color: #333
 }
 
-.content-section {
-    text-align: left; 
-    padding-left: 20px;
-}
