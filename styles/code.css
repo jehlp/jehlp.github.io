@@ -1,0 +1,95 @@
+#markdown-content {
+    text-align: left;
+}
+
+#markdown-content pre code {
+    text-align: left;
+}
+
+pre {
+    background-color: black; 
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    padding: 0 10px; 
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1em;
+    line-height: 1.5;
+    margin: 20px 0;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    position: relative;
+    left: 1;
+    display: none;
+}
+
+.show-code pre {
+    display: block;
+}
+
+code {
+    white-space: inherit; 
+    font-family: 'Consolas', monospace; 
+    padding: 0px 4px; 
+    border-radius: 2px;
+    color: white; 
+}
+
+.code-block-container {
+    margin: 20px 0;
+    position: relative;
+    padding-top: 30px; 
+}
+
+.code-toggle, .code-close {
+    background: none;
+    background-color: black;
+    border: 1px solid #ccc;
+    border-radius: 5px; 
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.code-toggle::after {
+    content: 'Expand'; 
+}
+
+.show-code .code-toggle::after {
+    content: 'Close';
+}
+
+.code-close::before,
+.code-close::after {
+    content: none !important; 
+}
+
+.code-close {
+    background: transparent;
+    display: none; 
+    border: none
+}
+
+.show-code .code-close {
+    display: block; 
+}
+
+.inline-code {
+    font-family: 'Consolas', monospace; 
+    border: 1px solid black;
+    padding: 0px 4px; 
+    background-color: #464545;
+    border-radius: 2px;
+    color: #eaeaea;
+}
+
+.light-mode .inline-code {
+    background-color: #eaeaea; 
+    color: grey; 
+    border: 1px solid black;
+}

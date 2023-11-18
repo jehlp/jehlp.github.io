@@ -1,0 +1,38 @@
+.table-of-contents {
+    border: 1px solid white; /* Light blue border for dark mode */
+    margin-left: 0; /* Align to the left side */
+    padding: 10px; /* Padding inside the contents box */
+    display: inline-block; /* Allows the block to size according to content */
+    width: auto; /* Adjust width to fit the content */
+    background-color: transparent; /* Ensures the background matches the section it's in */
+    text-align: left;
+}
+
+.table-of-contents ul {
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
+}
+
+.table-of-contents li {
+    padding: 2px 0; 
+}
+
+.table-of-contents li a {
+    color: white; 
+    text-decoration: none;
+}
+
+.light-mode .table-of-contents li a {
+    color: #333;
+}
+
+.light-mode .table-of-contents {
+    border: 1px solid #333; 
+    color: #333
+}
+
+.content-section {
+    text-align: left; 
+    padding-left: 20px;
+}

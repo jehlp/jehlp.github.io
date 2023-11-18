@@ -32,18 +32,25 @@ document.addEventListener('DOMContentLoaded', function() {
             var url = new URL(link.getAttribute('href'), window.location.href).href;
 
             if (url.startsWith(window.location.origin)) {
-                fetch(url).then(response => {
-                    if (response.ok) return response.text();
-                    else throw new Error('Network response was not ok.');
-                }).then(html => {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(html, 'text/html');
-                    var customInfo = doc.querySelector('.popup-info');
-                    var infoText = customInfo ? customInfo.textContent : 'No additional information available';
-                    updatePreviewDiv('<strong>URL:</strong><br>' + url + '<br><br><strong>Tag:</strong><br>' + infoText, e.pageX, e.pageY);
-                }).catch(error => {
-                    updatePreviewDiv('<strong>URL:</strong><br>' + url + '<br><br>Preview not available', e.pageX, e.pageY);
-                });
+                if (url.includes('#')) { 
+                    var anchorId = url.split('#')[1];
+                    var section = document.getElementById(anchorId);
+                    var infoText = section.getAttribute('data-popup-info') || 'No additional information available';
+                    updatePreviewDiv('<strong>Content:</strong><br>' + infoText, e.pageX, e.pageY);
+                } else {
+                    fetch(url).then(response => {
+                        if (response.ok) return response.text();
+                        else throw new Error('Network response was not ok.');
+                    }).then(html => {
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(html, 'text/html');
+                        var customInfo = doc.querySelector('.popup-info');
+                        var infoText = customInfo ? customInfo.textContent : 'No additional information available';
+                        updatePreviewDiv('<strong>URL:</strong><br>' + url + '<br><br><strong>Tag:</strong><br>' + infoText, e.pageX, e.pageY);
+                    }).catch(error => {
+                        updatePreviewDiv('<strong>URL:</strong><br>' + url + '<br><br>Preview not available', e.pageX, e.pageY);
+                    });
+                }
             } else {
                 updatePreviewDiv('<strong>URL:</strong><br>' + url + '<br><br>Preview not available for external links', e.pageX, e.pageY);
             }

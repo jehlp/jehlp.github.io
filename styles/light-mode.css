@@ -1,0 +1,60 @@
+.light-mode {
+    background-color: #e0e0e0;
+    color: black;
+}
+
+.light-mode body {
+    background-color: #636565; 
+    color: #CCCCCC;
+}
+
+.light-mode header {
+    background-color: #b4aa9e53; 
+    color: black;
+}
+
+.light-mode section {
+    background-color: #e0e0e0; 
+    color: black;
+}
+
+.light-mode footer {
+    background-color: #e0e0e0;
+    color: #333;
+    border-top: 1px solid #ccc;
+}
+
+.light-mode pre {
+    color: white;
+}
+
+.light-mode #notes-list ul li a {
+    color: black;
+    text-decoration: none;
+    font-size: 1.3em;
+}
+
+.light-mode article#post section h2 {
+    font-size: 1.5em;
+    color: black; 
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.light-mode article#post section p {
+    line-height: 1.6;
+    color: black;
+    margin-bottom: 1em;
+}
+
+.light-mode a {
+    color: black;
+}
+
+.light-mode #theme-toggle {
+    background-image: url('../img/moon.jpg');
+}
+
+.light-mode .code-toggle, .light-mode .code-close {
+    color: white;
+}

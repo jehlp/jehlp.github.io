@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>making a website</title>
-    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <link rel="stylesheet" href="../styles/navigation.css">
+    <link rel="stylesheet" href="../styles/media.css">
+    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="../styles/posts.css">
+    <link rel="stylesheet" href="../styles/footer.css">
+    <link rel="stylesheet" href="../styles/light-mode.css">
+    <link rel="stylesheet" href="../styles/code.css">
+    <link rel="stylesheet" href="../styles/puzzle.css">
+    <link rel="stylesheet" href="../styles/contents.css">
 </head>
 <body>
     <header>
@@ -17,20 +27,33 @@
             </ul>
         </nav>
     </header>
-    
     <main>
         <article id="post">
             <header>
                 <h1>making a website</h1>
                 <p class="meta">Posted on <time datetime="2023-11-16">November 16, 2023</time></p>
-                <p class="meta">Last updated on <time datetime="2023-11-16">November 17, 2023</time></p>
+                <p class="meta">Last updated on <time datetime="2023-11-16">November 18, 2023</time></p>
             </header>
             <section>
                 <p> This will be a growing dev-log and possibly a real-time display of mental collapse 
                     as i work on this website.</p>
             </section>
+            <section class="content-section">
+                <div class="table-of-contents">
+                    <h3>Contents</h3>
+                    <ul>
+                        <li><a href="#md">1. Markdown</a></li>
+                        <li><a href="#light-dark-mode">2. Light and Dark Mode</a></li>
+                        <li><a href="#popups">3. Popups</a></li>
+                        <li><a href="#redirects">4. Redirects</a></li>
+                        <li><a href="#code-ux">5. Code Block UX</a></li>
+                        <li><a href="#mobile">6. Mobile</a></li>
+                        <li><a href="#puz">7. Puzzle</a></li>
+                    </ul>
+                </div>
+            </section>
             <section>
-                <h2>1. markdown</h2>
+                <h2 id="md" data-popup-info="Exploring a custom markdown-like implementation for HTML pages.">1. markdown</h2>
                 <div id="markdown-content">
                     The first thing I want to implement is some sort of special HTML element that
                     can render code blocks or other markdown formatting. There is a script that does this
@@ -194,7 +217,7 @@ function colorCodeBlocksJS(codeBlock) {
                 </div>
             </section>
             <section>
-                <h2>2. dark/light mode</h2>
+                <h2 id="light-dark-mode" data-popup-info="Changing color schemas.">2. dark/light mode</h2>
                 <div id="markdown-content">
                     I'm usually a dark-mode kind of guy, but I don't think I'm particularly
                     consistent on what color schemas I use on what sites and so on. But here,
@@ -233,7 +256,7 @@ function toggleTheme() {
                 </div>
             </section>
             <section>
-                <h2>3. popups</h2>
+                <h2 id="popups" data-popup-info="Better popups on URL hover!">3. popups</h2>
                 <div id = "markdown-content">
                     This is something I've wanted to try implementing for a long time after seeing the 
                     insanity of recursive popups like on <a href="https://gwern.net/">Gwern's website</a>. 
@@ -334,7 +357,7 @@ document.querySelectorAll('a').forEach(link => {
                     So for now, regrettably, no preview tags for external links.
             </section>
             <section>
-                <h2>4. redirects</h2>
+                <h2 id="redirects" data-popup-info="Website redirects.">4. redirects</h2>
                 <div id="markdown-content">
                     One thing I absolutely did not like at all starting this site is how all my urls were 
                     `base/page.html`. I wanted `base/page` for cleanliness. So, I added a `404.html` file 
@@ -355,7 +378,7 @@ if (!hasExtension) {
                 </div>
             </section>
             <section>
-                <h2>5. code block UX</h2>
+                <h2 id="code-ux" data-popup-info="Better UX for inline code blocks.">5. code block UX</h2>
                 <div id="markdown-content">
                     Automatically rendering code-blocks is nice, but we should add some additional UX.
                     First of all, they should all be hidden by default, and the user can click a drop
@@ -383,7 +406,7 @@ if (text.substring(i, i + 3) === '\```') {
                 </div>   
             </section>
             <section>
-                <h2>6. mobile</h2>
+                <h2 id="mobile" data-popup-info="Mobile support.">6. mobile</h2>
                 <div id="markdown-content">
                     Any good website has mobile compatibility, therefore this is not a good website. For starters,
                     I decreased the size of the light/dark mode buttons on mobile by adjusting `width` and `height`
@@ -392,7 +415,7 @@ if (text.substring(i, i + 3) === '\```') {
                 </div>   
             </section>
             <section>
-                <h2>7. puzzle</h2>
+                <h2 id="puz" data-popup-info="Implementing a Nikoli puzzle player and solution validator.">7. puzzle</h2>
                 <div id="markdown-content">
                     I've always like puzzles. Like <i>really</i> liked them; over the past two years in particular,
                     logic puzzle creation and solving has very likely been the hobby I have sunk the most time into. So,

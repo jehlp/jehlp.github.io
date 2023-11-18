@@ -1,0 +1,39 @@
+@media (max-width: 768px) {
+    nav ul li {
+        margin: 0 10px;
+    }
+
+    .social-buttons {
+        gap: 15px;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    .social-button {
+        width: 25px;
+        height: 25px;
+    }
+
+    pre {
+        background-color: #1e1e1e; 
+        padding: 10px; 
+        font-size: 14px; 
+        overflow-x: auto; 
+        border-radius: 5px; 
+        margin: 10px 5px; 
+    }
+
+    code {
+        font-size: 14px; 
+    }
+
+    .code-block-container {
+        padding-top: 20px; 
+    }
+
+    .code-toggle, .code-close {
+        padding: 8px; 
+    }
+}

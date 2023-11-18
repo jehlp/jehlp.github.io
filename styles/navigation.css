@@ -1,0 +1,37 @@
+nav {
+    position: relative;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 15px;
+    position: relative; 
+}
+
+nav ul li a, nav ul li#theme-toggle {
+    color: #61dafb;
+    text-decoration: none;
+    font-size: 1.1em;
+    cursor: pointer; 
+}
+
+nav ul li a:hover, nav ul li#theme-toggle:hover {
+    color: #FFFFFF; 
+}
+
+#theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding-right: 0px; 
+    background-image: url('../img/sun.jpg');
+    background-color: #1F1F1F;
+    z-index: 9999;
+}
