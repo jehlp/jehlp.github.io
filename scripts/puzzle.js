@@ -120,7 +120,6 @@ function dfs(row, col, visited, grid, cellType) {
     return count;
 }
 
-
 function checkVisibility(row, col, grid) {
     let visibleCount = 1; 
     const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
