@@ -371,7 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggleCellState(cell, isRightClick = false) {
         if (isRightClick) {
-            // Reverse order for right-click
             if (cell.classList.contains('unshaded-cell')) {
                 cell.classList.remove('unshaded-cell');
                 cell.classList.add('shaded');
@@ -381,7 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 cell.classList.add('unshaded-cell');
             }
         } else {
-            // Forward order for left-click
             if (cell.classList.contains('shaded')) {
                 cell.classList.remove('shaded');
                 cell.classList.add('unshaded-cell');
