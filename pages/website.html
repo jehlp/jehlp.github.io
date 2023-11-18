@@ -395,19 +395,19 @@ if (text.substring(i, i + 3) === '\```') {
                 <h2>7. puzzle</h2>
                 <div id="markdown-content">
                     I've always like puzzles. Like <i>really</i> liked them; over the past two years in particular,
-                    logic puzzlecreation and solving has very likely been the hobby I have sunk the most time into. So,
+                    logic puzzle creation and solving has very likely been the hobby I have sunk the most time into. So,
                     I thought for the first interactive page on my website, I'll make a random puzzle appear on page load.
                     Of course they wont be randomly generated, they will be selected at random from a set of pre-defined 
-                    puzzles. I grabbed the ones you see on this website from <a href="https://puzz.link/db/">puzz.link database</a>.
+                    puzzles. I grabbed the ones you see on this website from the <a href="https://puzz.link/db/">puzz.link database</a>.
                     <br>
                     <br>
-                    For starters, I'm going to work on shading puzzles; that is, puzzles where you have a grid and every cell 
+                    To start, I'm going to work on shading puzzles. That is, puzzles where you have a grid and every cell 
                     must be either shaded or unshaded. Two popular shading genres I like are <a href="https://www.gmpuzzles.com/blog/cave-rules-and-info/">cave</a>
                     and <a href="https://www.gmpuzzles.com/blog/nurikabe-rules-and-info/">nurikabe</a>, so those will be the first
                     rulesets I implement.
                     <br>
                     <br>
-                    For a shading puzzle, programatically, every cell has one of four states, not two. the states are:
+                    For a shading puzzle, programatically, every cell has one of four states, not two. The states are:
                     <ul>
                         <li>Shaded</li>
                         <li>Unshaded</li>
@@ -476,11 +476,12 @@ function getCurrentGridState() {
     return state;
 }
                     ```
-                    The `handleCellClick` and `handleCellRightClick` listeners cycle the cells between the states
-                    either forward or backwards, and showing the implementation doesn't add anything to this post.
-                    However, whenever there is a click on the grid, we run a `validatePuzzle` function that determines
+                    The `handleCellClick` and `handleCellRightClick` listeners cycle the cells between the possible states
+                    in one direction or the other, and showing the implementation doesn't add anything to this post.
+                    However, whenever there is a click of either kind on the grid, we run a `validatePuzzle` function that 
+                    gets the grid state from `getCurrentGridState`, then determines
                     which validation function to use depending on the genre of the puzzle. That is, if the puzzle is 
-                    a cave puzzle, then we run `validateCave`, if it's nurikabe, we run `validateNurikabe`. If a 
+                    a cave puzzle, then we run `validateCave`, if it's nurikabe, we run `validateNurikabe`. If the genre specific 
                     validator returns `true`, then we disable all handlers as the puzzle has been solved and should no
                     longer be touched.
                     <br>
@@ -490,12 +491,12 @@ function getCurrentGridState() {
                     to be connected in some way. For cave, all unshaded cells must be connected, and all shaded cells must connect
                     to an edge. For Nurikabe, all shaded cells are connected and all unshaded cells connect to form islands. 
                     So we need to write something modular to account for types of connectivity deductions, or at least if not
-                    modular, we should understand how it works.
+                    modular, we should understand how it works so we can reproduce it for more specific use cases.
                     <br>
                     <br>
                     Connectivity is solved most cleanly by a DFS algorithm. We start from a cell and recurse through cells 
-                    adjacent. We also update a 2x2 array of boolean values to make sure we never recurse over the same cell
-                    twice, which would effectively infinitely recurse and blow up our memory usage.
+                    adjacent. We also update a 2D array of boolean values to make sure we never recurse over the same cell
+                    twice, which would effectively enable an infinite recursion and blow up our memory usage.
                     ```javascript 
 function dfs(row, col, visited, grid, cellType) {
     if (row < 0 || col < 0 || row >= grid.length || col >= grid[0].length 
@@ -517,9 +518,9 @@ function dfs(row, col, visited, grid, cellType) {
     return count;
 }
                     ```
-                    This is a quick dfs solution for our grid for connectivity of either shaded or unshaded cells. 
-                    It assumes that all clue cells are unshaded, which admittedly is true for mostly all shading genres,
-                    but for a more generalized solution it isn't the best. But if it works, it works, right? There are a 
+                    This is a quick dfs solution for connectivity of either shaded or unshaded cells. 
+                    It assumes that all clue cells are unshaded, which, while true for mostly all shading genres,
+                    is not the best for a more generalized solution. But if it works, it works, right? There are a 
                     lot of other random shading puzzle requirements and tools I needed to write, but most are very 
                     straightforward and not worth delving into here. An interested reader can find the full source 
                     code <a href="https://github.com/jehlp/jehlp.github.io/blob/main/scripts/puzzle.js">here</a>.
@@ -530,8 +531,8 @@ function dfs(row, col, visited, grid, cellType) {
                     allowing for a drag would be super useful to save clicks. However, during a drag (that is, during a 
                     single `mousedown`, `mouseover`, `mouseup` sequence), only one cell type should be updated. This 
                     might sound weird on paper, but if you have a grid with shaded and unshaded cells all scattered around, 
-                    on one action, you probably don't want to cycle shaded cells to unshaded cell and unshadeds to empty 
-                    cells in the same action. I haven't yet implemented this, but it's something to think about.
+                    on one action, you probably don't want to cycle both shaded cells to unshaded cells and unshaded cells
+                    to empty cells. I haven't yet implemented this, but it's something to think about.
                 </div>
             </section>
         </article>
