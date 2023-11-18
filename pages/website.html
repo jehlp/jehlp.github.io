@@ -360,7 +360,7 @@ document.querySelectorAll('a').forEach(link => {
                 <h2 id="redirects" data-popup-info="Website redirects.">4. redirects</h2>
                 <div id="markdown-content">
                     One thing I absolutely did not like at all starting this site is how all my urls were 
-                    `base/page.html`. I wanted `base/page` for cleanliness. So, I added a `404.html` file 
+                    `base/pages/page.html`. I wanted `base/pages/page` for cleanliness. So, I added a `404.html` file 
                     in the root directory, and attached a `redirect.js` script. It's very short and gets 
                     the job done:
                     ```javascript
@@ -412,6 +412,35 @@ if (text.substring(i, i + 3) === '\```') {
                     I decreased the size of the light/dark mode buttons on mobile by adjusting `width` and `height`
                     under the CSS `@media` rule. I did similar for code-blocks by decreasing their padding and 
                     font size to make them less of a pain to read.
+                    <br>
+                    <br>
+                    The only somewhat intensive mobile changes I made are relating to the puzzle page. I initially 
+                    hard coded the height and width of the squares, and this worked fine on desktop over most window 
+                    sizes. However, for larger puzzle grids, it was horrible on mobile. This is because on mobile, 
+                    unlike desktop, has a larger height than width. So, I wrote this `setGridStyle` 
+                    function in `puzzle.js` to handle dynamic element sizing:
+                    ```javascript
+function setGridStyle(rows, cols) {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const maxSize = Math.min(screenWidth, screenHeight) * 0.75; 
+    const gridDimension = Math.min(rows, cols);
+    const W = Math.floor(maxSize / gridDimension); 
+    
+    grid.style.gridTemplateColumns = `repeat(${cols}, ${W}px)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, ${W}px)`;
+    
+    const cells = grid.querySelectorAll('.grid-cell');
+    cells.forEach(cell => {
+        cell.style.width = `${W}px`;
+        cell.style.height = `${W}px`;
+        cell.style.fontSize = `${W / 2.5}px`;
+    });
+}
+                    ``` 
+                    This function compares the available width and height and sets the maximum size to three
+                    fourths of whichever is smaller. Then our width and height of each cell is this size divided
+                    by whichever is smaller of total rows and columns. This worked extremely well.
                 </div>   
             </section>
             <section>
