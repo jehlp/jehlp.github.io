@@ -1,6 +1,6 @@
-import { CAVE, NURIKABE } from '../scripts/const/puzzles_raw.js'
+import { CAVE, NURIKABE, KUROTTO } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, NURIKABE]
+const GENRES = [CAVE, NURIKABE, KUROTTO]
 
 function checkForEmptyCells(currentState) {
     for (let i = 0; i < currentState.length; i++) {
@@ -137,6 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
         case CAVE:
             rules.textContent = 'Cave: Shade some cells such that all unshaded cells are connected, and all groups of shaded cells are connected to an edge of the grid. A number in a cell indicates the number of unshaded cells you can see from that position, where shaded cells block the view.'
             break;
+        case KUROTTO:
+            rules.textContent = 'Kurotto: Shade some cells such that each number equals the total count of shaded cells in connected groups sharing an edge with that number.'
+            break;
         default:
             break;
     }
@@ -173,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            if (connectedShadedCellsCount > 0 || !unshadedGroupValid) break;
+            if (!unshadedGroupValid) break;
         }
         
         if (shadedCellsCount === connectedShadedCellsCount && unshadedGroupValid) {
@@ -232,6 +235,45 @@ document.addEventListener('DOMContentLoaded', function() {
         return isSolved;
     }
 
+    function validateKurotto(currentState) {
+        const rows = currentState.length;
+        const cols = currentState[0].length;
+
+        if (!checkForEmptyCells(currentState)) {
+            return false;
+        }
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (!isNaN(currentState[i][j])) {
+                    const numberCell = currentState[i][j];
+                    let totalShadedCount = 0;
+                    let visitedShaded = new Array(rows).fill(0).map(() => new Array(cols).fill(false));
+                    const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    
+                    for (const [dx, dy] of offsets) {
+                        const newRow = i + dx;
+                        const newCol = j + dy;
+    
+                        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols 
+                            && currentState[newRow][newCol] === 'shaded' 
+                            && !visitedShaded[newRow][newCol]) {
+                            totalShadedCount += dfs(newRow, newCol, visitedShaded, currentState, 'shaded');
+                        }
+                    }
+    
+                    if (totalShadedCount !== numberCell) {
+                        return false;
+                    }
+                }
+            }
+        }
+    
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
+    }
+
     function setGridStyle(rows, cols) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
@@ -275,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cell = document.createElement('div');
         cell.classList.add('grid-cell');
     
-        if (value !== 0) {
+        if (value !== 'e') {
             cell.textContent = value;
             cell.classList.add('number-cell');
         } else {
@@ -323,17 +365,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function validatePuzzle() {
         const currentState = getCurrentGridState();
-        if (myGenre === NURIKABE) {
-            validateNurikabe(currentState);
-        } else if (myGenre === CAVE) {
-            validateCave(currentState);
+        switch (myGenre) {
+            case NURIKABE:
+                validateNurikabe(currentState);
+                break;
+            case CAVE:
+                validateCave(currentState);
+                break;
+            case KUROTTO:
+                validateKurotto(currentState);
+                break;
+            default:
+                break;
         }
     }
 
     function createGrid(puzzle) {
         const rows = puzzle.length;
         const cols = puzzle[0].length;
-    
         grid.innerHTML = '';
     
         for (let i = 0; i < rows; i++) {
