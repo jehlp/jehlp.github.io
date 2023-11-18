@@ -102,8 +102,8 @@ function parseCodeBlocks(htmlElement) {
                     I'm using a simple regular expression to find all instances of '\`\`\`', replacing
                     them with `ESCAPED_BACKTICKS`, rendering the HTML, then replacing 
                     `ESCAPED_BACKTICKS` back with '\`\`\`' at the end. The only problem now is that
-                    whenever I write 'ESCAPED_BACKTICKS', it gets replaced by triple backticks!
-                    So, we need a way to make sure that originally written 'ESCAPED_BACKTICKS' will
+                    whenever I write 'ESCAPED\_BACKTICKS', it gets replaced by triple backticks!
+                    So, we need a way to make sure that originally written 'ESCAPED\_BACKTICKS' will
                     be left alone. This was wayyy trickier than I anticipated:
                     ```javascript
 function parseCodeBlocks(htmlElement) {
@@ -449,7 +449,7 @@ function setGridStyle(rows, cols) {
             <section>
                 <h2 id="puz" data-popup-info="Implementing a Nikoli puzzle player and solution validator.">7. puzzle</h2>
                 <div id="markdown-content">
-                    I've always like puzzles. Like <i>really</i> liked them; over the past two years in particular,
+                    I've always like puzzles. Like _really_ liked them; over the past two years in particular,
                     logic puzzle creation and solving has very likely been the hobby I have sunk the most time into. So,
                     I thought for the first interactive page on my website, I'll make a random puzzle appear on page load.
                     Of course they wont be randomly generated, they will be selected at random from a set of pre-defined 
@@ -542,7 +542,7 @@ function getCurrentGridState() {
                     <br>
                     <br>
                     The interesting part of this project is obviously the validators. Solutions to Nurikabe and Cave puzzles 
-                    both have <i>connectivity</i> requirements, which means cells of a certain type (shaded or unshaded) have 
+                    both have _connectivity_ requirements, which means cells of a certain type (shaded or unshaded) have 
                     to be connected in some way. For cave, all unshaded cells must be connected, and all shaded cells must connect
                     to an edge. For Nurikabe, all shaded cells are connected and all unshaded cells connect to form islands. 
                     So we need to write something modular to account for types of connectivity deductions, or at least if not

@@ -1,8 +1,11 @@
-function parseCodeBlocksAndInline(htmlElement) {
+function parseMarkdownText(htmlElement) {
     let text = htmlElement.innerHTML;
     let result = '';
     let inCodeBlock = false;
     let inInlineCode = false;
+    let inBold = false;
+    let inItalics = false;
+    let inStrikethrough = false;
     let i = 0;
 
     while (i < text.length) {
@@ -45,9 +48,39 @@ function parseCodeBlocksAndInline(htmlElement) {
                 result += text[i];
             }
         } else {
+            if (text.substring(i, i + 1) === '\\' && (text.substring(i + 1, i + 3) === '**' 
+            || text.substring(i + 1, i + 3) === '__' 
+            || text[i + 1] === '*' 
+            || text[i + 1] === '_' 
+            || text[i + 1] === '~')) {
+                result += text[i + 1]; 
+                i += 2; 
+                continue;
+            }
+        
+            if (text.substring(i, i + 2) === '**' || text.substring(i, i + 2) === '__') {
+                inBold = !inBold;
+                result += inBold ? '<b>' : '</b>';
+                i += 2;
+                continue;
+            }
+        
+            if (text[i] === '*' || text[i] === '_') {
+                inItalics = !inItalics;
+                result += inItalics ? '<i>' : '</i>';
+                i++;
+                continue;
+            }
+
+            if (text.substring(i, i + 2) === '~~') {
+                inStrikethrough = !inStrikethrough;
+                result += inStrikethrough ? '<s>' : '</s>';
+                i += 2;
+                continue;
+            }
+        
             result += text[i];
         }
-
         i++;
     }
 
@@ -187,7 +220,7 @@ function colorCodeBlocksJS(codeBlock) {
 document.addEventListener('DOMContentLoaded', () => {
     const contentElements = document.querySelectorAll('#markdown-content');
     contentElements.forEach((contentElement) => {
-        parseCodeBlocksAndInline(contentElement);
+        parseMarkdownText(contentElement);
         colorCodeBlocks(contentElement);
 
         contentElement.querySelectorAll('.code-block-container').forEach(container => {
