@@ -31,3 +31,35 @@
 .unshaded-cell {
     background-color: lime;
 }
+
+.number-cell-array {
+    background-color: lime;
+    color: #444;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.number-top-left,
+.number-bottom-right,
+.number-top-middle,
+.number-bottom-left,
+.number-bottom-right,
+.number-middle-left,
+.number-middle-top,
+.number-middle-right,
+.number-middle-bottom {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+}
+
+.number-top-left { top: 0; left: 5%; }
+.number-bottom-right { bottom: 0; right: 5%; }
+.number-top-middle { top: 0; left: 50%; transform: translateX(-50%); }
+.number-bottom-left { bottom: 0; left: 5%; } 
+.number-middle-left { top: 50%; left: 5%; transform: translateY(-50%); } 
+.number-middle-top { top: 0; left: 50%; transform: translateX(-50%); }
+.number-middle-right { top: 50%; right: 5%; transform: translateY(-50%); } 
+.number-middle-bottom { bottom: 0; left: 50%; transform: translateX(-50%); }

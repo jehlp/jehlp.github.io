@@ -1,6 +1,7 @@
-import { CAVE, NURIKABE, KUROTTO } from '../scripts/const/puzzles_raw.js'
+import { CAVE, NURIKABE, KUROTTO, TAPA } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, NURIKABE, KUROTTO]
+//const GENRES = [CAVE, NURIKABE, KUROTTO]
+const GENRES = [TAPA]
 
 function checkForEmptyCells(currentState) {
     for (let i = 0; i < currentState.length; i++) {
@@ -109,6 +110,62 @@ function dfsIslands(row, col, visited, grid) {
     return { count, numbers, firstNumber };
 }
 
+function validateTapaNumbers(row, col, grid) {
+    let cellValue = grid[row][col];
+    if (typeof cellValue === 'string') {
+        cellValue = JSON.parse(cellValue);
+    }
+
+    const clueNumbers = Array.isArray(cellValue) ? cellValue : [cellValue];
+    const offsets = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [0, 1], 
+        [1, 1], [1, 0], [1, -1], 
+        [0, -1]
+    ];
+
+    let pattern = '';
+    for (const [dx, dy] of offsets) {
+        const newX = row + dx;
+        const newY = col + dy;
+        if (newX >= 0 && newY >= 0 && newX < grid.length && newY < grid[0].length) {
+            pattern += (grid[newX][newY] === 'shaded') ? '1' : '0';
+        } else {
+            pattern += '0';
+        }
+    }
+        
+    return matchPatternToTapaClue(pattern, clueNumbers);
+}
+
+
+function matchPatternToTapaClue(pattern, clueNumbers) {
+    clueNumbers.sort((a, b) => a - b);
+
+    if (pattern.startsWith('1') && pattern.endsWith('1')) {
+        let splitIndex = pattern.indexOf('0');
+        if (splitIndex !== -1) {
+            pattern = pattern.slice(splitIndex) + pattern.slice(0, splitIndex);
+        }
+    }
+    
+    const shadedBlocks = pattern.split('0').filter(block => block !== '');
+
+    if (shadedBlocks.length !== clueNumbers.length) {
+        return false;
+    }
+
+    shadedBlocks.sort((a, b) => a.length - b.length);
+
+    for (let i = 0; i < shadedBlocks.length; i++) {
+        if (shadedBlocks[i].length !== clueNumbers[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const grid = document.getElementById('puzzle-grid');
 
@@ -139,6 +196,9 @@ document.addEventListener('DOMContentLoaded', function() {
             break;
         case KUROTTO:
             rules.textContent = 'Kurotto: Shade some cells such that each number equals the total count of shaded cells in connected groups sharing an edge with that number.'
+            break;
+        case TAPA:
+            rules.textContent = 'Tapa: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. Numbers in a cell indicate the length of consecutive shaded blocks in the surrounding (up to) 8 cells. If there is more than one number in a cell, then there must be at least one unshaded cell between the shaded cell groups.'
             break;
         default:
             break;
@@ -179,12 +239,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!unshadedGroupValid) break;
         }
         
-        if (shadedCellsCount === connectedShadedCellsCount && unshadedGroupValid) {
-            successMessage.textContent = 'Solved!';
-            isSolved = true;
-            return true;
+        if (shadedCellsCount !== connectedShadedCellsCount || !unshadedGroupValid) {
+            return false
         }
-        return false;
+
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
     }
 
     function validateCave(currentState) {
@@ -274,6 +335,49 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
+    function validateTapa(currentState) {
+        const rows = currentState.length;
+        const cols = currentState[0].length;
+
+        if (!checkForEmptyCells(currentState)) {
+            return false;
+        }
+
+        if (!twoByTwoShaded(currentState)) {
+            return false;
+        }
+
+        let visitedShaded = new Array(rows).fill(0).map(() => new Array(cols).fill(false));
+        let connectedShadedCellsCount = 0;
+        let shadedCellsCount = getTotalShadedCells(currentState);
+        
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (currentState[i][j] === 'shaded' && !visitedShaded[i][j]) {
+                    if (connectedShadedCellsCount === 0) {
+                        connectedShadedCellsCount = dfs(i, j, visitedShaded, currentState, 'shaded');
+                    } else {
+                        return false;
+                    }
+                }
+
+                if (!isNaN(currentState[i][j]) || Array.isArray(currentState[i][j])) {
+                    if (!validateTapaNumbers(i, j, currentState)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (shadedCellsCount !== connectedShadedCellsCount) {
+            return false;
+        }
+
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
+    }
+
     function setGridStyle(rows, cols) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
@@ -289,6 +393,10 @@ document.addEventListener('DOMContentLoaded', function() {
             cell.style.width = `${W}px`;
             cell.style.height = `${W}px`;
             cell.style.fontSize = `${W / 2.5}px`;
+    
+            if (cell.classList.contains('number-cell-array')) {
+                cell.style.fontSize = `${W / 3}px`; 
+            }
         });
     }
 
@@ -297,7 +405,10 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const row of grid.children) {
             const rowState = [];
             for (const cell of row.children) {
-                if (cell.classList.contains('number-cell')) {
+                if (cell.classList.contains('number-cell-array')) {
+                    const numbers = JSON.parse(cell.dataset.numbers);
+                    rowState.push(numbers);
+                } else if (cell.classList.contains('number-cell')) {
                     const number = parseInt(cell.textContent, 10);
                     rowState.push(number);
                 } else if (cell.classList.contains('shaded')) {
@@ -311,13 +422,32 @@ document.addEventListener('DOMContentLoaded', function() {
             state.push(rowState);
         }
         return state;
-    }
+    }    
     
     function createCell(value) {
         const cell = document.createElement('div');
         cell.classList.add('grid-cell');
     
-        if (value !== 'e') {
+        if (Array.isArray(value)) {
+            cell.dataset.numbers = JSON.stringify(value);
+    
+            cell.textContent = '';
+            cell.classList.add('number-cell-array');
+    
+            if (value.length === 2) {
+                placeNumberInCell(cell, value[0], 'top-left');
+                placeNumberInCell(cell, value[1], 'bottom-right');
+            } else if (value.length === 3) {
+                placeNumberInCell(cell, value[0], 'top-middle');
+                placeNumberInCell(cell, value[1], 'bottom-left');
+                placeNumberInCell(cell, value[2], 'bottom-right');
+            } else if (value.length === 4) {
+                placeNumberInCell(cell, value[0], 'middle-left');
+                placeNumberInCell(cell, value[1], 'middle-top');
+                placeNumberInCell(cell, value[2], 'middle-right');
+                placeNumberInCell(cell, value[3], 'middle-bottom');
+            }
+        } else if (value !== 'e') {
             cell.textContent = value;
             cell.classList.add('number-cell');
         } else {
@@ -326,6 +456,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         return cell;
+    }
+
+    function placeNumberInCell(cell, number, position) {
+        const numberDiv = document.createElement('div');
+        numberDiv.textContent = number;
+        numberDiv.classList.add(`number-${position}`);
+        cell.appendChild(numberDiv);
     }
 
     function toggleCellState(cell, isRightClick = false) {
@@ -374,6 +511,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case KUROTTO:
                 validateKurotto(currentState);
+                break;
+            case TAPA:
+                validateTapa(currentState);
                 break;
             default:
                 break;
