@@ -181,9 +181,26 @@ document.addEventListener('DOMContentLoaded', function() {
     successMessage.id = 'success-message'; 
     grid.parentNode.insertBefore(successMessage, grid.nextSibling); 
 
+    let lastGenreIndex = localStorage.getItem('lastGenreIndex');
+    if (lastGenreIndex !== null) {
+        lastGenreIndex = parseInt(lastGenreIndex, 10);
+    }
+    
+    let genreIndex;
 
-    let myGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
+    if (lastGenreIndex !== null && GENRES.length > 1) {
+        do {
+            genreIndex = Math.floor(Math.random() * GENRES.length);
+        } while (genreIndex === lastGenreIndex);
+    } else {
+        genreIndex = Math.floor(Math.random() * GENRES.length);
+    }
+
+    let myGenre = GENRES[genreIndex];
     let myPuzzle = myGenre[Math.floor(Math.random() * myGenre.length)];
+
+    localStorage.setItem('lastGenreIndex', genreIndex);
+
     let isSolved = false;
 
     switch (myGenre) {
