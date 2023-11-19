@@ -1,7 +1,6 @@
 import { CAVE, NURIKABE, KUROTTO, TAPA } from '../scripts/const/puzzles_raw.js'
 
-//const GENRES = [CAVE, NURIKABE, KUROTTO]
-const GENRES = [TAPA]
+const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA]
 
 function checkForEmptyCells(currentState) {
     for (let i = 0; i < currentState.length; i++) {
