@@ -1,6 +1,6 @@
-import { CAVE, NURIKABE, KUROTTO, TAPA } from '../scripts/const/puzzles_raw.js'
+import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA]
+const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW]
 
 function checkForEmptyCells(currentState) {
     for (let i = 0; i < currentState.length; i++) {
@@ -33,22 +33,29 @@ function dfs(row, col, visited, grid, cellType) {
     return count;
 }
 
-function checkVisibility(row, col, grid) {
-    let visibleCount = 1; 
+function checkVisibility(row, col, grid, countShaded, includeSelf) {
+    let visibleCount = includeSelf ? 1 : 0; 
     const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
     for (const [dx, dy] of offsets) {
-        visibleCount += countVisible(row, col, dx, dy, grid);
+        visibleCount += countVisible(row, col, dx, dy, grid, countShaded);
     }
 
     return visibleCount === grid[row][col];
 }
 
-function countVisible(row, col, dx, dy, grid) {
+function countVisible(row, col, dx, dy, grid, countShaded) {
     let count = 0;
     row += dx;
     col += dy;
-    while (row >= 0 && col >= 0 && row < grid.length && col < grid[0].length && grid[row][col] !== 'shaded') {
-        count++;
+    while (row >= 0 && col >= 0 && row < grid.length && col < grid[0].length) {
+        if (countShaded && grid[row][col] === 'shaded') {
+            count++;
+        } else if (!countShaded && grid[row][col] !== 'shaded') {
+            count++;
+        } else {
+            break;
+        }
         row += dx;
         col += dy;
     }
@@ -216,6 +223,9 @@ document.addEventListener('DOMContentLoaded', function() {
         case TAPA:
             rules.textContent = 'Tapa: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. Numbers in a cell indicate the length of consecutive shaded blocks in the surrounding (up to) 8 cells. If there is more than one number in a cell, then there must be at least one unshaded cell between the shaded cell groups.'
             break;
+        case CANALVIEW:
+            rules.textContent = 'Canal View: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. A number in a cell indicates the total number of shaded cells connected vertically and horizontally to that cell.'
+            break;
         default:
             break;
     }
@@ -300,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
     
                 if (!isNaN(currentState[i][j])) {
-                    if (!checkVisibility(i, j, currentState)) {
+                    if (!checkVisibility(i, j, currentState, false, true)) {
                         return false;
                     } 
                 }
@@ -329,13 +339,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
     
                     for (const [dx, dy] of offsets) {
-                        const newRow = i + dx;
-                        const newCol = j + dy;
+                        const newX = i + dx;
+                        const newY = j + dy;
     
-                        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols 
-                            && currentState[newRow][newCol] === 'shaded' 
-                            && !visitedShaded[newRow][newCol]) {
-                            totalShadedCount += dfs(newRow, newCol, visitedShaded, currentState, 'shaded');
+                        if (newX >= 0 && newX < rows && newY >= 0 && newY < cols 
+                            && currentState[newX][newY] === 'shaded' 
+                            && !visitedShaded[newX][newY]) {
+                            totalShadedCount += dfs(newX, newY, visitedShaded, currentState, 'shaded');
                         }
                     }
     
@@ -381,6 +391,49 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!validateTapaNumbers(i, j, currentState)) {
                         return false;
                     }
+                }
+            }
+        }
+
+        if (shadedCellsCount !== connectedShadedCellsCount) {
+            return false;
+        }
+
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
+    }
+
+    function validateCanalView(currentState) {
+        const rows = currentState.length;
+        const cols = currentState[0].length;
+
+        if (!checkForEmptyCells(currentState)) {
+            return false;
+        }
+
+        if (!twoByTwoShaded(currentState)) {
+            return false;
+        }
+
+        let visitedShaded = new Array(rows).fill(0).map(() => new Array(cols).fill(false));
+        let connectedShadedCellsCount = 0;
+        let shadedCellsCount = getTotalShadedCells(currentState);
+        
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (currentState[i][j] === 'shaded' && !visitedShaded[i][j]) {
+                    if (connectedShadedCellsCount === 0) {
+                        connectedShadedCellsCount = dfs(i, j, visitedShaded, currentState, 'shaded');
+                    } else {
+                        return false;
+                    }
+                }
+
+                if (!isNaN(currentState[i][j])) {
+                    if (!checkVisibility(i, j, currentState, true, false)) {
+                        return false;
+                    } 
                 }
             }
         }
@@ -530,6 +583,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case TAPA:
                 validateTapa(currentState);
+                break;
+            case CANALVIEW:
+                validateCanalView(currentState);
                 break;
             default:
                 break;
