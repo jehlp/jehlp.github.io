@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function handleCellClick() {
-        if (Date.now() - lastInteractionTime < 300) return; 
+        if (Date.now() - lastInteractionTime < 100) return; 
         lastInteractionTime = Date.now();
     
         if (isSolved) return;
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleCellRightClick(event) {
         event.preventDefault();
-        if (Date.now() - lastInteractionTime < 300) return; 
+        if (Date.now() - lastInteractionTime < 100) return; 
         lastInteractionTime = Date.now();
     
         if (isSolved) return;
