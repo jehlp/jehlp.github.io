@@ -1,7 +1,6 @@
 import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, SIMPLELOOP]
-//const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW]
+const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP]
 
 function isAdjacent(cell1, cell2) {
     const row1 = parseInt(cell1.getAttribute('data-row'), 10);
