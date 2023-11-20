@@ -154,7 +154,6 @@ function validateTapaNumbers(row, col, grid) {
     return matchPatternToTapaClue(pattern, clueNumbers);
 }
 
-
 function matchPatternToTapaClue(pattern, clueNumbers) {
     clueNumbers.sort((a, b) => a - b);
 
@@ -329,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
             allowShading = false; allowLineDrawing = true;
             break;
         case SUBWAY:
-            rules.textContent = 'Draw a loop network through the centers of some cells, which may branch or turn, but may not have any dead ends. A clue outside the grid indicates how many times the corresponding line shape (i.e. a cross, branch, straight line, or turn) appears in the corresponding row or column, irrespective of the line shape\'s rotation.'
+            rules.textContent = 'Subway: Draw a loop network through the centers of some cells, which may branch or turn, but may not have any dead ends. A clue outside the grid indicates how many times the corresponding line shape (i.e. a cross, branch, straight line, or turn) appears in the corresponding row or column, irrespective of the line shape\'s rotation.'
             allowShading = false; allowLineDrawing = true;
         default:
             break;
