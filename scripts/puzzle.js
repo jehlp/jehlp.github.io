@@ -770,7 +770,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
         canvas.width = cols * W;
         canvas.height = rows * W; 
+
+        updateCanvasSize(rows, cols);
     } 
+
+    function updateCanvasSize(rows, cols) {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const maxSize = Math.min(screenWidth, screenHeight) * 0.5;
+        const gridDimension = Math.min(rows, cols);
+        const W = Math.floor(maxSize / gridDimension);
+    
+        canvas.width = cols * W;
+        canvas.height = rows * W;
+    
+        redrawAllLines();
+    }
 
     function drawSingleLine(startCell, endCell) {
         if (startCell.classList.contains('blocked') || endCell.classList.contains('blocked')) {
@@ -848,5 +863,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = myPuzzle.length;
         const cols = myPuzzle[0].length;
         setGridStyle(rows, cols);
+        updateCanvasSize(rows, cols);
     });
 });
