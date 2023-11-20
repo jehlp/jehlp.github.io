@@ -1,6 +1,6 @@
 #puzzle-grid {
     display: grid;
-    gap: 1px;
+    gap: 0px;
     margin: 0 auto;
     padding: 10px;
     border: 3px solid #666;
@@ -11,7 +11,7 @@
 
 .grid-cell {
     background-color: #fff;
-    border: 1px solid #000;
+    border: 0.1px solid #000;
     cursor: pointer;
     display: flex;
     justify-content: center;

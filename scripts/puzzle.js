@@ -726,8 +726,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function cleanUp() {
         const numberCells = document.querySelectorAll('.number-cell, .number-cell-array');
+        const allCells = document.querySelectorAll('.grid-cell');
+
         numberCells.forEach(cell => {
             cell.style.backgroundColor = 'lime';
+        });
+        allCells.forEach(cell => {
+            cell.style.border = '0px';
         });
     }
 
