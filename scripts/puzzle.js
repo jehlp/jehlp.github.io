@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let shadedCellsCount = getTotalShadedCells(currentState);
         let connectedShadedCellsCount = 0;
         let unshadedGroupValid = true;
+        let lastInteractionTime = 0;
     
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
@@ -694,6 +695,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function handleCellClick() {
+        if (Date.now() - lastInteractionTime < 300) return; 
+        lastInteractionTime = Date.now();
+    
         if (isSolved) return;
         toggleCellState(this);
         validatePuzzle();
@@ -701,6 +705,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleCellRightClick(event) {
         event.preventDefault();
+        if (Date.now() - lastInteractionTime < 300) return; 
+        lastInteractionTime = Date.now();
+    
         if (isSolved) return;
         toggleCellState(this, true);
         validatePuzzle();
