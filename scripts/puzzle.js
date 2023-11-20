@@ -539,10 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
         cells.forEach(cell => {
             cell.style.width = `${W}px`;
             cell.style.height = `${W}px`;
-            cell.style.fontSize = `${W / 2.5}px`;
+            cell.style.fontSize = `${W / 1.5}px`;
     
             if (cell.classList.contains('number-cell-array')) {
-                cell.style.fontSize = `${W / 3}px`; 
+                cell.style.fontSize = `${W / 2.2}px`; 
             }
         });
     }
@@ -604,6 +604,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             cell.textContent = value;
             cell.classList.add('number-cell');
+            cell.addEventListener('click', handleCellClick);
+            cell.addEventListener('contextmenu', handleCellRightClick);
         }
 
         cell.addEventListener('mousedown', function(event) {
@@ -651,27 +653,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggleCellState(cell, isRightClick = false) {
         if (!allowShading) return;
-        if (isRightClick) {
-            if (cell.classList.contains('unshaded-cell')) {
-                cell.classList.remove('unshaded-cell');
-                cell.classList.add('shaded');
-            } else if (cell.classList.contains('shaded')) {
-                cell.classList.remove('shaded');
+    
+        if (cell.classList.contains('number-cell') || cell.classList.contains('number-cell-array')) {
+            if (cell.style.backgroundColor === 'lime') {
+                cell.style.backgroundColor = ''; 
             } else {
-                cell.classList.add('unshaded-cell');
+                cell.style.backgroundColor = 'lime'; 
             }
         } else {
-            if (cell.classList.contains('shaded')) {
-                cell.classList.remove('shaded');
-                cell.classList.add('unshaded-cell');
-            } else if (cell.classList.contains('unshaded-cell')) {
-                cell.classList.remove('unshaded-cell');
+            if (isRightClick) {
+                if (cell.classList.contains('unshaded-cell')) {
+                    cell.classList.remove('unshaded-cell');
+                    cell.classList.add('shaded');
+                } else if (cell.classList.contains('shaded')) {
+                    cell.classList.remove('shaded');
+                } else {
+                    cell.classList.add('unshaded-cell');
+                }
             } else {
-                cell.classList.add('shaded');
+                if (cell.classList.contains('shaded')) {
+                    cell.classList.remove('shaded');
+                    cell.classList.add('unshaded-cell');
+                } else if (cell.classList.contains('unshaded-cell')) {
+                    cell.classList.remove('unshaded-cell');
+                } else {
+                    cell.classList.add('shaded');
+                }
             }
         }
     }
-
+    
     function handleCellClick() {
         if (isSolved) return;
         toggleCellState(this);
@@ -709,6 +720,15 @@ document.addEventListener('DOMContentLoaded', function() {
             default:
                 break;
         }
+
+        if (isSolved) cleanUp();
+    }
+
+    function cleanUp() {
+        const numberCells = document.querySelectorAll('.number-cell, .number-cell-array');
+        numberCells.forEach(cell => {
+            cell.style.backgroundColor = 'lime';
+        });
     }
 
     function createCanvas(rows, cols) {

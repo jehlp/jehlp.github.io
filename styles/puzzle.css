@@ -24,7 +24,6 @@
 
 .number-cell {
     color: #444;
-    background-color: lime;
     font-size: 1.5em
 }
 
@@ -37,7 +36,6 @@
 }
 
 .number-cell-array {
-    background-color: lime;
     color: #444;
     position: relative;
     display: flex;
