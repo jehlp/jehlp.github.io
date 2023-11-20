@@ -296,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!checkForEmptyCells(currentState)) {
             return false;
         }
+        
         if (!twoByTwoShaded(currentState)) {
             return false;
         }
