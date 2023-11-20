@@ -609,38 +609,47 @@ document.addEventListener('DOMContentLoaded', function() {
             cell.addEventListener('contextmenu', handleCellRightClick);
         }
 
-        cell.addEventListener('mousedown', function(event) {
-            if (!allowLineDrawing) return
-            if (isSolved) return;
+        cell.addEventListener('mousedown', handleMouseDown);
+        cell.addEventListener('touchstart', handleMouseDown);
 
+        function handleMouseDown(event) {
+            if (!allowLineDrawing || isSolved) return;
+            
             event.preventDefault();
             isDragging = true;
             startCell = cell;
-        });
-        
-        cell.addEventListener('mouseenter', function(event) {
-            if (!isDragging) return;
-            if (isSolved) return;
-        
-            if (isAdjacent(startCell, this)) {
+        }
+
+        cell.addEventListener('mouseenter', handleMouseEnter);
+        cell.addEventListener('touchmove', handleMouseEnter);
+
+        function handleMouseEnter(event) {
+            if (!isDragging || isSolved) return;
+
+            let targetCell = event.type === 'touchmove' ? document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY) : this;
+            
+            if (isAdjacent(startCell, targetCell)) {
                 const startRow = parseInt(startCell.getAttribute('data-row'), 10);
                 const startCol = parseInt(startCell.getAttribute('data-col'), 10);
-                const endRow = parseInt(this.getAttribute('data-row'), 10);
-                const endCol = parseInt(this.getAttribute('data-col'), 10);
-        
+                const endRow = parseInt(targetCell.getAttribute('data-row'), 10);
+                const endCol = parseInt(targetCell.getAttribute('data-col'), 10);
+
                 toggleConnection(startRow, startCol, endRow, endCol);
                 redrawAllLines();
 
-                startCell = this; 
+                startCell = targetCell; 
             }
-        });
-        
-        grid.addEventListener('mouseup', function(event) {
+        }
+
+        grid.addEventListener('mouseup', handleMouseUp);
+        grid.addEventListener('touchend', handleMouseUp);
+
+        function handleMouseUp() {
             if (isSolved) return;
 
             isDragging = false;
             startCell = null;
-        });        
+        }       
     
         return cell;
     }
