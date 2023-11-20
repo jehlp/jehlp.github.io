@@ -32,6 +32,10 @@
     background-color: lime;
 }
 
+.blocked {
+    background-color: black;
+}
+
 .number-cell-array {
     background-color: lime;
     color: #444;

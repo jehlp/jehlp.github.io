@@ -1,6 +1,17 @@
-import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW } from '../scripts/const/puzzles_raw.js'
+import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW]
+const GENRES = [CAVE, SIMPLELOOP]
+//const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW]
+
+function isAdjacent(cell1, cell2) {
+    const row1 = parseInt(cell1.getAttribute('data-row'), 10);
+    const col1 = parseInt(cell1.getAttribute('data-col'), 10);
+    const row2 = parseInt(cell2.getAttribute('data-row'), 10);
+    const col2 = parseInt(cell2.getAttribute('data-col'), 10);
+
+    return (Math.abs(row1 - row2) === 1 && col1 === col2) || 
+           (Math.abs(col1 - col2) === 1 && row1 === row2);
+}
 
 function checkForEmptyCells(currentState) {
     for (let i = 0; i < currentState.length; i++) {
@@ -172,8 +183,35 @@ function matchPatternToTapaClue(pattern, clueNumbers) {
     return true;
 }
 
+function countConnections(horizontalConnections, verticalConnections, row, col) {
+    let count = 0;
+
+    if (col > 0 && horizontalConnections[row][col - 1]) count++;
+    if (col < horizontalConnections[row].length && horizontalConnections[row][col]) count++;
+
+    if (row > 0 && verticalConnections[row - 1][col]) count++;
+    if (row < verticalConnections.length && verticalConnections[row][col]) count++;
+
+    return count;
+}
+
+function isBlockedCell(row, col) {
+    let cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
+    return cell && cell.classList.contains('blocked');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    let isSolved = false;
+
     const grid = document.getElementById('puzzle-grid');
+    let canvas, ctx;
+    let isDragging = false;
+    let startCell = null;
+    let horizontalConnections;
+    let verticalConnections;
+    let allowShading = false;
+    let allowLineDrawing = false;
+
 
     const rules = document.createElement('div');
     rules.id = 'rules';
@@ -208,26 +246,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     localStorage.setItem('lastGenreIndex', genreIndex);
 
-    let isSolved = false;
-
     switch (myGenre) {
         case NURIKABE:
             rules.textContent = 'Nurikabe: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. Moreover, every unshaded area contains exactly one number, and that number indicates the size of the unshaded area it belongs to.'
+            allowShading = true; allowLineDrawing = false;
             break;
         case CAVE:
             rules.textContent = 'Cave: Shade some cells such that all unshaded cells are connected, and all groups of shaded cells are connected to an edge of the grid. A number in a cell indicates the number of unshaded cells you can see from that position, where shaded cells block the view.'
+            allowShading = true; allowLineDrawing = false;
             break;
         case KUROTTO:
             rules.textContent = 'Kurotto: Shade some cells such that each number equals the total count of shaded cells in connected groups sharing an edge with that number.'
+            allowShading = true; allowLineDrawing = false;
             break;
         case TAPA:
             rules.textContent = 'Tapa: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. Numbers in a cell indicate the length of consecutive shaded blocks in the surrounding (up to) 8 cells. If there is more than one number in a cell, then there must be at least one unshaded cell between the shaded cell groups.'
+            allowShading = true; allowLineDrawing = false;
             break;
         case CANALVIEW:
             rules.textContent = 'Canal View: Shade some cells such that all shaded cells are connected, and no 2x2 area is entirely shaded. A number in a cell indicates the total number of shaded cells connected vertically and horizontally to that cell.'
+            allowShading = true; allowLineDrawing = false;
+            break;
+        case SIMPLELOOP:
+            rules.textContent = 'Simple Loop: Draw a loop that passes through the center of every cell exactly once.'
+            allowShading = false; allowLineDrawing = true;
             break;
         default:
             break;
+    }
+
+    function initializeConnections(rows, cols) {
+        horizontalConnections = Array.from({ length: rows }, () => Array(cols - 1).fill(false));
+        verticalConnections = Array.from({ length: rows - 1 }, () => Array(cols).fill(false));
+    }
+
+    function toggleConnection(startRow, startCol, endRow, endCol) {
+        if (startRow === endRow) {
+            horizontalConnections[startRow][Math.min(startCol, endCol)] = !horizontalConnections[startRow][Math.min(startCol, endCol)];
+        } else {
+            verticalConnections[Math.min(startRow, endRow)][startCol] = !verticalConnections[Math.min(startRow, endRow)][startCol];
+        }
+        validatePuzzle()
     }
 
     function validateNurikabe(currentState) {
@@ -447,6 +506,26 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
+    function validateSimpleLoop() {
+        let rows = verticalConnections.length + 1; 
+        let cols = horizontalConnections[0].length + 1; 
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                if (!isBlockedCell(row, col)) {
+                    let connectionCount = countConnections(horizontalConnections, verticalConnections, row, col);
+                    if (connectionCount !== 2) {
+                        return false;
+                    }
+                }
+            }
+        }
+    
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
+    }
+
     function setGridStyle(rows, cols) {
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
@@ -493,9 +572,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return state;
     }    
     
-    function createCell(value) {
+    function createCell(value, rowIndex, colIndex) {
         const cell = document.createElement('div');
         cell.classList.add('grid-cell');
+        cell.setAttribute('data-row', rowIndex);
+        cell.setAttribute('data-col', colIndex);
     
         if (Array.isArray(value)) {
             cell.dataset.numbers = JSON.stringify(value);
@@ -516,13 +597,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 placeNumberInCell(cell, value[2], 'middle-right');
                 placeNumberInCell(cell, value[3], 'middle-bottom');
             }
-        } else if (value !== 'e') {
-            cell.textContent = value;
-            cell.classList.add('number-cell');
-        } else {
+        } else if (value === 'b') {
+            cell.classList.add('blocked')
+        } else if (value === 'e') {
             cell.addEventListener('click', handleCellClick);
             cell.addEventListener('contextmenu', handleCellRightClick);
+        } else {
+            cell.textContent = value;
+            cell.classList.add('number-cell');
         }
+
+        cell.addEventListener('mousedown', function(event) {
+            if (!allowLineDrawing) return
+            if (isSolved) return;
+
+            event.preventDefault();
+            isDragging = true;
+            startCell = cell;
+        });
+        
+        cell.addEventListener('mouseenter', function(event) {
+            if (!isDragging) return;
+            if (isSolved) return;
+        
+            if (isAdjacent(startCell, this)) {
+                const startRow = parseInt(startCell.getAttribute('data-row'), 10);
+                const startCol = parseInt(startCell.getAttribute('data-col'), 10);
+                const endRow = parseInt(this.getAttribute('data-row'), 10);
+                const endCol = parseInt(this.getAttribute('data-col'), 10);
+        
+                toggleConnection(startRow, startCol, endRow, endCol);
+                redrawAllLines();
+
+                startCell = this; 
+            }
+        });
+        
+        grid.addEventListener('mouseup', function(event) {
+            if (isSolved) return;
+
+            isDragging = false;
+            startCell = null;
+        });        
     
         return cell;
     }
@@ -535,6 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function toggleCellState(cell, isRightClick = false) {
+        if (!allowShading) return;
         if (isRightClick) {
             if (cell.classList.contains('unshaded-cell')) {
                 cell.classList.remove('unshaded-cell');
@@ -587,30 +704,101 @@ document.addEventListener('DOMContentLoaded', function() {
             case CANALVIEW:
                 validateCanalView(currentState);
                 break;
+            case SIMPLELOOP:
+                validateSimpleLoop();
+                break;
             default:
                 break;
         }
     }
 
+    function createCanvas(rows, cols) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'line-canvas';
+        canvas.style.zIndex = '10'; 
+        canvas.style.position = 'absolute'; 
+        canvas.style.pointerEvents = 'none';
+        grid.appendChild(canvas);
+        ctx = canvas.getContext('2d');
+
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const maxSize = Math.min(screenWidth, screenHeight) * 0.5; 
+        const gridDimension = Math.min(rows, cols);
+        const W = Math.floor(maxSize / gridDimension); 
+    
+        canvas.width = cols * W;
+        canvas.height = rows * W; 
+    } 
+
+    function drawSingleLine(startCell, endCell) {
+        if (startCell.classList.contains('blocked') || endCell.classList.contains('blocked')) {
+            return;
+        }
+    
+        const startRect = startCell.getBoundingClientRect();
+        const endRect = endCell.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+    
+        const startX = startRect.left - canvasRect.left + startRect.width / 2;
+        const startY = startRect.top - canvasRect.top + startRect.height / 2;
+        const endX = endRect.left - canvasRect.left + endRect.width / 2;
+        const endY = endRect.top - canvasRect.top + endRect.height / 2;
+    
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = '#006400'; 
+        ctx.lineWidth = 4;
+        ctx.stroke();
+    }    
+
+    function redrawAllLines() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        for (let i = 0; i < horizontalConnections.length; i++) {
+            for (let j = 0; j < horizontalConnections[i].length; j++) {
+                if (horizontalConnections[i][j]) {
+                    const startCell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+                    const endCell = document.querySelector(`[data-row="${i}"][data-col="${j + 1}"]`);
+                    drawSingleLine(startCell, endCell);
+                }
+            }
+        }
+    
+        for (let i = 0; i < verticalConnections.length; i++) {
+            for (let j = 0; j < verticalConnections[i].length; j++) {
+                if (verticalConnections[i][j]) {
+                    const startCell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+                    const endCell = document.querySelector(`[data-row="${i + 1}"][data-col="${j}"]`);
+                    drawSingleLine(startCell, endCell);
+                }
+            }
+        }
+    }    
+
     function createGrid(puzzle) {
         const rows = puzzle.length;
         const cols = puzzle[0].length;
         grid.innerHTML = '';
+
+        initializeConnections(rows, cols);
+        createCanvas(rows, cols);
     
         for (let i = 0; i < rows; i++) {
             const row = document.createElement('div');
             row.classList.add('grid-row');
     
             for (let j = 0; j < cols; j++) {
-                const cell = createCell(puzzle[i][j]);
+                const cell = createCell(puzzle[i][j], i, j);
                 row.appendChild(cell);
             }
     
             grid.appendChild(row);
         }
         setGridStyle(rows, cols);
-    }    
-    
+    } 
+
     createGrid(myPuzzle);
 
     grid.addEventListener('contextmenu', event => event.preventDefault());

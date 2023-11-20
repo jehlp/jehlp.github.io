@@ -1,5 +1,5 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -9,25 +9,20 @@ body {
 
 section {
     text-align: center;
-    padding: 50px 20px;
+    padding: 60px 30px;
     margin: 0 auto;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
 a {
-    color: #CCCCCC;
+    color: #61dafb;
 }
 
 a:hover {
-    opacity: 0.6; 
-    transition: opacity 0.2s ease;
+    color: #9ad2fb;
+    transition: color 0.2s ease;
 }
 
 button:hover {
-    opacity: 0.8; 
-    transition: opacity 0.2s ease;
+    background-color: #3a9fbf;
+    transition: background-color 0.2s ease;
 }

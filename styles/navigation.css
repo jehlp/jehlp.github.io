@@ -16,14 +16,14 @@ nav ul li {
 }
 
 nav ul li a, nav ul li#theme-toggle {
-    color: #61dafb;
+    color: #CCCCCC;
     text-decoration: none;
     font-size: 1.1em;
     cursor: pointer; 
 }
 
 nav ul li a:hover, nav ul li#theme-toggle:hover {
-    color: #FFFFFF; 
+    color: #FFFFFF;
 }
 
 #theme-toggle {
