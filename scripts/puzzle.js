@@ -296,7 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!checkForEmptyCells(currentState)) {
             return false;
         }
-    
         if (!twoByTwoShaded(currentState)) {
             return false;
         }
@@ -551,6 +550,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function getCurrentGridState() {
         const state = [];
         for (const row of grid.children) {
+            if (row.nodeName === 'CANVAS') {
+                continue;
+            }
             const rowState = [];
             for (const cell of row.children) {
                 if (cell.classList.contains('number-cell-array')) {
@@ -736,8 +738,9 @@ document.addEventListener('DOMContentLoaded', function() {
             default:
                 break;
         }
-
-        if (isSolved) cleanUp();
+        if (isSolved) {
+            cleanUp();
+        }
     }
 
     function cleanUp() {
