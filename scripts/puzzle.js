@@ -1,6 +1,6 @@
-import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP } from '../scripts/const/puzzles_raw.js'
+import { CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP, SUBWAY } from '../scripts/const/puzzles_raw.js'
 
-const GENRES = [CAVE, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP]
+const GENRES = [CAVE, SUBWAY, NURIKABE, KUROTTO, TAPA, CANALVIEW, SIMPLELOOP]
 
 function isAdjacent(cell1, cell2) {
     const row1 = parseInt(cell1.getAttribute('data-row'), 10);
@@ -183,20 +183,77 @@ function matchPatternToTapaClue(pattern, clueNumbers) {
 }
 
 function countConnections(horizontalConnections, verticalConnections, row, col) {
-    let count = 0;
+    let horizontalCount = 0;
+    let verticalCount = 0;
 
-    if (col > 0 && horizontalConnections[row][col - 1]) count++;
-    if (col < horizontalConnections[row].length && horizontalConnections[row][col]) count++;
+    if (col > 0 && horizontalConnections[row][col - 1]) horizontalCount++;
+    if (col < horizontalConnections[row].length && horizontalConnections[row][col]) horizontalCount++;
 
-    if (row > 0 && verticalConnections[row - 1][col]) count++;
-    if (row < verticalConnections.length && verticalConnections[row][col]) count++;
+    if (row > 0 && verticalConnections[row - 1][col]) verticalCount++;
+    if (row < verticalConnections.length && verticalConnections[row][col]) verticalCount++;
 
-    return count;
+    return {
+        total: horizontalCount + verticalCount,
+        horizontal: horizontalCount,
+        vertical: verticalCount
+    };
 }
 
 function isBlockedCell(row, col) {
     let cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
     return cell && cell.classList.contains('blocked');
+}
+
+function validSubwayClue(horizontalConnections, verticalConnections, grid, row, col) {
+    let clueType = null;
+    let clueValue = grid[row][col];
+
+    if (row === 0 || col === 0) {
+        clueType = 'CROSS';
+    } else if (row === 1 || col === 1) {
+        clueType = 'BRANCH';
+    } else if (row === 2 || col === 2) {
+        clueType = 'STRAIGHT';
+    } else {
+        clueType = 'TURN';
+    }
+
+    let matchingConnections = 0;
+
+    for (let i = 0; i < grid.length; i++) {
+        if (i !== row) {
+            if (isMatchingConnection(horizontalConnections, verticalConnections, i, col, clueType)) {
+                matchingConnections++;
+            }
+        }
+    }
+
+    for (let j = 0; j < grid[row].length; j++) {
+        if (j !== col) {
+            if (isMatchingConnection(horizontalConnections, verticalConnections, row, j, clueType)) {
+                matchingConnections++;
+            }
+        }
+    }
+
+    return matchingConnections === clueValue;
+}
+
+function isMatchingConnection(horizontalConnections, verticalConnections, row, col, clueType) {
+    let connectionInfo = countConnections(horizontalConnections, verticalConnections, row, col);
+
+    switch (clueType) {
+        case 'BRANCH':
+            return connectionInfo.total === 3;
+        case 'CROSS':
+            return connectionInfo.total === 4;
+        case 'STRAIGHT':
+            return (connectionInfo.horizontal === 2 && connectionInfo.vertical === 0) || (connectionInfo.vertical === 2 && connectionInfo.horizontal === 0);
+        case 'TURN':
+            return connectionInfo.horizontal === 1 && connectionInfo.vertical === 1;
+        default:
+            return false;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -271,6 +328,9 @@ document.addEventListener('DOMContentLoaded', function() {
             rules.textContent = 'Simple Loop: Draw a loop that passes through the center of every cell exactly once.'
             allowShading = false; allowLineDrawing = true;
             break;
+        case SUBWAY:
+            rules.textContent = 'Draw a loop network through the centers of some cells, which may branch or turn, but may not have any dead ends. A clue outside the grid indicates how many times the corresponding line shape (i.e. a cross, branch, straight line, or turn) appears in the corresponding row or column, irrespective of the line shape\'s rotation.'
+            allowShading = false; allowLineDrawing = true;
         default:
             break;
     }
@@ -281,12 +341,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function toggleConnection(startRow, startCol, endRow, endCol) {
+        const startCell = document.querySelector(`[data-row="${startRow}"][data-col="${startCol}"]`);
+        const endCell = document.querySelector(`[data-row="${endRow}"][data-col="${endCol}"]`);
+    
+        if (!isValidConnection(startCell, endCell)) {
+            return;
+        }
+    
         if (startRow === endRow) {
             horizontalConnections[startRow][Math.min(startCol, endCol)] = !horizontalConnections[startRow][Math.min(startCol, endCol)];
         } else {
             verticalConnections[Math.min(startRow, endRow)][startCol] = !verticalConnections[Math.min(startRow, endRow)][startCol];
         }
-        validatePuzzle()
+        validatePuzzle();
     }
 
     function validateNurikabe(currentState) {
@@ -296,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!checkForEmptyCells(currentState)) {
             return false;
         }
-        
+
         if (!twoByTwoShaded(currentState)) {
             return false;
         }
@@ -510,13 +577,37 @@ document.addEventListener('DOMContentLoaded', function() {
         let rows = verticalConnections.length + 1; 
         let cols = horizontalConnections[0].length + 1; 
 
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                if (!isBlockedCell(row, col)) {
-                    let connectionCount = countConnections(horizontalConnections, verticalConnections, row, col);
-                    if (connectionCount !== 2) {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (!isBlockedCell(i, j)) {
+                    let connectionCount = countConnections(horizontalConnections, verticalConnections, i, j);
+                    if (connectionCount.total !== 2) {
                         return false;
                     }
+                }
+            }
+        }
+    
+        successMessage.textContent = 'Solved!';
+        isSolved = true;
+        return true;
+    }
+
+    function validateSubway(currentState) {
+        const rows = currentState.length;
+        const cols = currentState[0].length;
+
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (!isBlockedCell(i, j)) {
+                    let connectionCount = countConnections(horizontalConnections, verticalConnections, i, j);
+                    if (connectionCount.total === 1) {
+                        return false;
+                    }
+                }
+
+                if(!isNaN(currentState[i][j]) && !validSubwayClue(horizontalConnections, verticalConnections, currentState, i, j)) {
+                    return false
                 }
             }
         }
@@ -657,6 +748,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return cell;
     }
 
+    function isValidConnection(startCell, endCell) {
+        return !(startCell.classList.contains('blocked') 
+            || endCell.classList.contains('blocked') 
+            || startCell.classList.contains('subway-clue')
+            || endCell.classList.contains('subway-clue'));
+    }
+    
+
     function placeNumberInCell(cell, number, position) {
         const numberDiv = document.createElement('div');
         numberDiv.textContent = number;
@@ -736,6 +835,9 @@ document.addEventListener('DOMContentLoaded', function() {
             case SIMPLELOOP:
                 validateSimpleLoop();
                 break;
+            case SUBWAY:
+                validateSubway(currentState);
+                break
             default:
                 break;
         }
@@ -749,10 +851,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const allCells = document.querySelectorAll('.grid-cell');
 
         numberCells.forEach(cell => {
-            cell.style.backgroundColor = 'lime';
+            if (!cell.classList.contains('subway-clue')) {
+                cell.style.backgroundColor = 'lime';
+            }
         });
         allCells.forEach(cell => {
-            cell.style.border = '0px';
+            if (!cell.classList.contains('subway-clue')) {
+                cell.style.border = '0px';
+            }
         });
     }
 
@@ -791,9 +897,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawSingleLine(startCell, endCell) {
-        if (startCell.classList.contains('blocked') || endCell.classList.contains('blocked')) {
+        if (!isValidConnection(startCell, endCell)) {
             return;
-        }
+        }    
     
         const startRect = startCell.getBoundingClientRect();
         const endRect = endCell.getBoundingClientRect();
@@ -836,11 +942,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }    
 
-    function createGrid(puzzle) {
+    function createGrid(puzzle) { 
         const rows = puzzle.length;
         const cols = puzzle[0].length;
         grid.innerHTML = '';
-
+    
         initializeConnections(rows, cols);
         createCanvas(rows, cols);
     
@@ -850,14 +956,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
             for (let j = 0; j < cols; j++) {
                 const cell = createCell(puzzle[i][j], i, j);
+    
+                if (genreIndex === 1 && j <= 3) { 
+                    cell.classList.add('subway-clue');
+                    if (j === 3) {
+                        cell.style.borderBottom= '5px solid black';
+                    }
+                }
+
+                if (genreIndex === 1 && i <= 3) {
+                    cell.classList.add('subway-clue');
+                    cell.style.left ='-5px';
+                    cell.style.zIndex = '1'; 
+                    cell.style.position = "relative";
+                    if (i === 3) {
+                        cell.style.borderRight = '5px solid black';
+                    }
+                }
+
                 row.appendChild(cell);
             }
     
             grid.appendChild(row);
         }
         setGridStyle(rows, cols);
-    } 
-
+    }
+    
     createGrid(myPuzzle);
 
     grid.addEventListener('contextmenu', event => event.preventDefault());
