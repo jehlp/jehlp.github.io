@@ -203,11 +203,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let isSolved = false;
 
     const grid = document.getElementById('puzzle-grid');
-    let canvas, ctx;
+    let canvas = null; 
+    let ctx = null;
     let isDragging = false;
     let startCell = null;
-    let horizontalConnections;
-    let verticalConnections;
+    let horizontalConnections = null;
+    let verticalConnections = null;
     let allowShading = false;
     let allowLineDrawing = false;
 
