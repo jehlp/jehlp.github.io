@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let verticalConnections = null;
     let allowShading = false;
     let allowLineDrawing = false;
-
+    let lastInteractionTime = 0;
 
     const rules = document.createElement('div');
     rules.id = 'rules';
@@ -306,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
         let shadedCellsCount = getTotalShadedCells(currentState);
         let connectedShadedCellsCount = 0;
         let unshadedGroupValid = true;
-        let lastInteractionTime = 0;
     
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
